@@ -1,17 +1,20 @@
 ﻿using BlogPlatform.Dtos;
 using BlogPlatform.WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlogPlatform.WebApi.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class PostController(ILogger<PostController> logger, IPostsService postsService) : ControllerBase
 {
     private readonly ILogger<PostController> _logger = logger;
     private readonly IPostsService _postsService = postsService;
 
     [HttpGet(Name = nameof(GetPosts))]
+    [AllowAnonymous]
     public async Task<ActionResult<List<PostDto>>> GetPosts()
     {
         var posts = await _postsService.GetPostsAsync();
@@ -21,6 +24,7 @@ public class PostController(ILogger<PostController> logger, IPostsService postsS
     }
 
     [HttpGet("{id}", Name = nameof(GetPost))]
+    [AllowAnonymous]
     public async Task<ActionResult<PostDto>> GetPost(long id)
     {
         var post = await _postsService.GetPostAsync(id);

@@ -1,17 +1,20 @@
 ﻿using BlogPlatform.Dtos;
 using BlogPlatform.WebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlogPlatform.WebApi.Controllers;
 
 [ApiController]
 [Route("[controller]")]
+[Authorize]
 public class CommentController(ILogger<CommentController> logger, ICommentsService commentsService) : ControllerBase
 {
     private readonly ILogger<CommentController> _logger = logger;
     private readonly ICommentsService _commentsService = commentsService;
 
     [HttpGet("{id}", Name = nameof(GetComment))]
+    [AllowAnonymous]
     public async Task<ActionResult<CommentDto>> GetComment(long id)
     {
         var comment = await _commentsService.GetCommentAsync(id);
