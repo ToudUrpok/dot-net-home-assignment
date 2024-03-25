@@ -4,7 +4,7 @@ namespace BlogPlatform.WebApi.Services;
 
 public interface IPostsService
 {
-    Task<List<PostDto>?> GetPostsAsync();
+    Task<IEnumerable<PostDto>?> GetPostsAsync();
     Task<PostDto?> GetPostAsync(long id);
     Task<PostDto?> CreatePostAsync(CreatePostDto data);
     Task<bool> UpdatePostAsync(UpdatePostDto post);

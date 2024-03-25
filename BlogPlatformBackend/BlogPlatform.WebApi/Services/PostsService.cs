@@ -9,7 +9,7 @@ public class PostsService(BlogContext dbContext) : IPostsService
 {
     private readonly BlogContext _dbContext = dbContext;
 
-    public async Task<List<PostDto>?> GetPostsAsync()
+    public async Task<IEnumerable<PostDto>?> GetPostsAsync()
     {
         var postsEntries = await _dbContext.Posts
             .AsNoTracking()
@@ -42,23 +42,14 @@ public class PostsService(BlogContext dbContext) : IPostsService
 
     public async Task<PostDto?> CreatePostAsync(CreatePostDto data)
     {
-        Post newPostEntry = new()
+        var postEntry = _dbContext.Posts.Add(new()
         {
             Title = data.Title,
             Content = data.Content
-        };
+        });
+        await _dbContext.SaveChangesAsync();
 
-        try
-        {
-            _dbContext.Posts.Add(newPostEntry);
-            await _dbContext.SaveChangesAsync();
-        }
-        catch (Exception)
-        {
-            return null;
-        }
-
-        return CreatePostDto(newPostEntry);
+        return CreatePostDto(postEntry.Entity);
     }
 
     public async Task<bool> UpdatePostAsync(UpdatePostDto post)

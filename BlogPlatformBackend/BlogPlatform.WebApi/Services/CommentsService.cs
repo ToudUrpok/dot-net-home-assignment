@@ -22,15 +22,14 @@ public class CommentsService(BlogContext dbContext) : ICommentsService
 
     public async Task<CommentDto?> CreateCommentAsync(CreateCommentDto data)
     {
-        Comment newCommentEntry = new()
+        var commentEntry = _dbContext.Comments.Add(new()
         {
             Text = data.Text,
             PostId = data.PostId,
-        };
+        });
 
         try
         {
-            _dbContext.Comments.Add(newCommentEntry);
             await _dbContext.SaveChangesAsync();
         }
         catch (Exception)
@@ -40,8 +39,8 @@ public class CommentsService(BlogContext dbContext) : ICommentsService
 
         return new CommentDto()
         {
-            Id = newCommentEntry.Id,
-            Text = newCommentEntry.Text
+            Id = commentEntry.Entity.Id,
+            Text = commentEntry.Entity.Text
         };
     }
 

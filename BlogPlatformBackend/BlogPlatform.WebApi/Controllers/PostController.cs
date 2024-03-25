@@ -15,12 +15,12 @@ public class PostController(ILogger<PostController> logger, IPostsService postsS
 
     [HttpGet(Name = nameof(GetPosts))]
     [AllowAnonymous]
-    public async Task<ActionResult<List<PostDto>>> GetPosts()
+    public async Task<ActionResult<IEnumerable<PostDto>>> GetPosts()
     {
         var posts = await _postsService.GetPostsAsync();
         if (posts is null) return BadRequest();
 
-        return posts.Count > 0 ? Ok(posts) : NotFound();
+        return posts.Any() ? Ok(posts) : NotFound();
     }
 
     [HttpGet("{id}", Name = nameof(GetPost))]
