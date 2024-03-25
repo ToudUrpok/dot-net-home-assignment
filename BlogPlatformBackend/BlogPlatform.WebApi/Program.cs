@@ -1,3 +1,4 @@
+using BlogPlatform.WebApi.Middleware;
 using BlogPlatform.WebApi.Model;
 using BlogPlatform.WebApi.Services;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<LoggingMiddleware>();
 
 app.MapControllers();
 
