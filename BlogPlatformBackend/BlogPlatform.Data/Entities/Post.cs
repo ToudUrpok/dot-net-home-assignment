@@ -1,4 +1,4 @@
-﻿namespace BlogPlatform.WebApi.Model.Entities;
+﻿namespace BlogPlatform.Data.Entities;
 
 public class Post
 {

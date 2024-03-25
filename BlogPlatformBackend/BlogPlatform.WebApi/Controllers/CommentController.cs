@@ -1,5 +1,5 @@
 ﻿using BlogPlatform.Dtos;
-using BlogPlatform.WebApi.Services;
+using BlogPlatform.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

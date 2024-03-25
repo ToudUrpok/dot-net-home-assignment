@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using BlogPlatform.WebApi.Model;
-using BlogPlatform.WebApi.Model.Entities;
+using BlogPlatform.Data;
+using BlogPlatform.Data.Entities;
 using BlogPlatform.Dtos;
 
-namespace BlogPlatform.WebApi.Services;
+namespace BlogPlatform.Services;
 
 public class PostsService(BlogContext dbContext) : IPostsService
 {

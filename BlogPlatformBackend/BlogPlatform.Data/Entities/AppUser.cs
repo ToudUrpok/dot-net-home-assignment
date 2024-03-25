@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace BlogPlatform.WebApi.Model.Entities;
+namespace BlogPlatform.Data.Entities;
 
 public class AppUser
 {

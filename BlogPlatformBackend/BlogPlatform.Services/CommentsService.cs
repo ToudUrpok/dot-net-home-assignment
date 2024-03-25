@@ -1,8 +1,7 @@
-﻿using BlogPlatform.WebApi.Model;
-using BlogPlatform.WebApi.Model.Entities;
+﻿using BlogPlatform.Data;
 using BlogPlatform.Dtos;
 
-namespace BlogPlatform.WebApi.Services;
+namespace BlogPlatform.Services;
 
 public class CommentsService(BlogContext dbContext) : ICommentsService
 {

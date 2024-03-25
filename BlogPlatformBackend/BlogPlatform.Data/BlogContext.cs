@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using BlogPlatform.WebApi.Model.Entities;
+using BlogPlatform.Data.Entities;
 
-namespace BlogPlatform.WebApi.Model;
+namespace BlogPlatform.Data;
 
 public class BlogContext(DbContextOptions<BlogContext> options)
     : DbContext(options)

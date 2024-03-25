@@ -1,6 +1,6 @@
 using BlogPlatform.WebApi.Middleware;
-using BlogPlatform.WebApi.Model;
-using BlogPlatform.WebApi.Services;
+using BlogPlatform.Data;
+using BlogPlatform.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

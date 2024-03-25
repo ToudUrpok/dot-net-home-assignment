@@ -1,6 +1,6 @@
 ﻿using BlogPlatform.Dtos;
 
-namespace BlogPlatform.WebApi.Services;
+namespace BlogPlatform.Services;
 
 public interface ICommentsService
 {

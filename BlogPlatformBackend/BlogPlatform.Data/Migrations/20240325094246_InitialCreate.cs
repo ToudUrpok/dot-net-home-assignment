@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace BlogPlatform.WebApi.Migrations
+namespace BlogPlatform.Data.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
