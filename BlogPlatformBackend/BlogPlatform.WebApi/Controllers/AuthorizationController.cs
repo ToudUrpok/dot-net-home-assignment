@@ -7,9 +7,9 @@ namespace BlogPlatform.WebApi.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class AuthorizationController(ILogger<CommentController> logger, ILoginService loginService) : ControllerBase
+public class AuthorizationController(ILogger<AuthorizationController> logger, ILoginService loginService) : ControllerBase
 {
-    private readonly ILogger<CommentController> _logger = logger;
+    private readonly ILogger<AuthorizationController> _logger = logger;
     private readonly ILoginService _loginService = loginService;
 
     [HttpPost(Name = nameof(Login))]

@@ -45,7 +45,7 @@ public class PostController(ILogger<PostController> logger, IPostsService postsS
     {
         if (id != post.Id)
         {
-            return BadRequest();
+            return BadRequest("Invalid update data. Id values from URL mismatches Id value from data object.");
         }
 
         var result = await _postsService.UpdatePostAsync(post);

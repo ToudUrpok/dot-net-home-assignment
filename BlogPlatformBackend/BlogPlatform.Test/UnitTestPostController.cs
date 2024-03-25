@@ -62,12 +62,12 @@ public class UnitTestPostController()
         var postController = new PostController(_logger.Object , _postService.Object);
 
         var actionResult = await postController.GetPosts();
-        var okResult = (OkObjectResult)actionResult.Result!;
-        var resultValue = (IEnumerable<PostDto>)okResult.Value!;
 
-        Assert.NotNull(okResult);
+        Assert.NotNull(actionResult.Result);
+        var okResult = Assert.IsAssignableFrom<OkObjectResult>(actionResult.Result);
         Assert.True(okResult.StatusCode == 200);
-        Assert.NotNull(resultValue);
+        Assert.NotNull(okResult.Value);
+        var resultValue = Assert.IsAssignableFrom<IEnumerable<PostDto>>(okResult.Value);
         Assert.Equal(POSTS.Count(), resultValue.Count());
         Assert.True(POSTS.Equals(resultValue));
     }
@@ -79,9 +79,9 @@ public class UnitTestPostController()
         var postController = new PostController(_logger.Object, _postService.Object);
 
         var actionResult = await postController.GetPosts();
-        var notFoundResult = (NotFoundResult)actionResult.Result!;
 
-        Assert.NotNull(notFoundResult);
+        Assert.NotNull(actionResult.Result);
+        var notFoundResult = Assert.IsAssignableFrom<NotFoundResult>(actionResult.Result);
         Assert.True(notFoundResult.StatusCode == 404);
     }
 
@@ -93,9 +93,9 @@ public class UnitTestPostController()
         var postController = new PostController(_logger.Object, _postService.Object);
 
         var actionResult = await postController.GetPosts();
-        var badRequestResult = (BadRequestResult)actionResult.Result!;
 
-        Assert.NotNull(badRequestResult);
+        Assert.NotNull(actionResult.Result);
+        var badRequestResult = Assert.IsAssignableFrom<BadRequestResult>(actionResult.Result);
         Assert.True(badRequestResult.StatusCode == 400);
     }
 
@@ -107,12 +107,12 @@ public class UnitTestPostController()
         var postController = new PostController(_logger.Object, _postService.Object);
 
         var actionResult = await postController.GetPost(2);
-        var okResult = (OkObjectResult)actionResult.Result!;
-        var resultValue = (PostDto)okResult.Value!;
 
-        Assert.NotNull(okResult);
+        Assert.NotNull(actionResult.Result);
+        var okResult = Assert.IsAssignableFrom<OkObjectResult>(actionResult.Result);
         Assert.True(okResult.StatusCode == 200);
-        Assert.NotNull(resultValue);
+        Assert.NotNull(okResult.Value);
+        var resultValue = Assert.IsAssignableFrom<PostDto>(okResult.Value);
         Assert.Equal(testPost.Id, resultValue.Id);
         Assert.True(testPost.Equals(resultValue));
     }
@@ -125,9 +125,9 @@ public class UnitTestPostController()
         var postController = new PostController(_logger.Object, _postService.Object);
 
         var actionResult = await postController.GetPost(10);
-        var notFoundResult = (NotFoundResult)actionResult.Result!;
 
-        Assert.NotNull(notFoundResult);
+        Assert.NotNull(actionResult.Result);
+        var notFoundResult = Assert.IsAssignableFrom<NotFoundResult>(actionResult.Result);
         Assert.True(notFoundResult.StatusCode == 404);
     }
 
@@ -140,16 +140,16 @@ public class UnitTestPostController()
         var postController = new PostController(_logger.Object, _postService.Object);
 
         var actionResult = await postController.CreatePost(testData);
-        var createdAtActionResult = (CreatedAtActionResult)actionResult.Result!;
-        var resultValue = (PostDto)createdAtActionResult.Value!;
 
-        Assert.NotNull(createdAtActionResult);
+        Assert.NotNull(actionResult.Result);
+        var createdAtActionResult = Assert.IsAssignableFrom<CreatedAtActionResult>(actionResult.Result);
         Assert.True(createdAtActionResult.StatusCode == 201);
         object? routeValue = null;
         Assert.True(createdAtActionResult.RouteValues?.TryGetValue("id", out routeValue));
         Assert.True(routeValue is not null && (long)routeValue == testResult.Id);
         Assert.True(createdAtActionResult.ActionName == nameof(postController.GetPost));
-        Assert.NotNull(resultValue);
+        Assert.NotNull(createdAtActionResult.Value);
+        var resultValue = Assert.IsAssignableFrom<PostDto>(createdAtActionResult.Value);
         Assert.Equal(testResult.Id, resultValue.Id);
         Assert.True(testResult.Equals(resultValue));
     }
@@ -163,9 +163,38 @@ public class UnitTestPostController()
         var postController = new PostController(_logger.Object, _postService.Object);
 
         var actionResult = await postController.CreatePost(testData);
-        var badRequestResult = (BadRequestResult)actionResult.Result!;
 
-        Assert.NotNull(badRequestResult);
+        Assert.NotNull(actionResult.Result);
+        var badRequestResult = Assert.IsAssignableFrom<BadRequestResult>(actionResult.Result);
         Assert.True(badRequestResult.StatusCode == 400);
+    }
+
+    [Fact]
+    public async void UpdatePostOk()
+    {
+        UpdatePostDto testData = new() { Id = 10, Title = "Updated Title", Content = "Updated Content" };
+        _postService.Setup(ps => ps.UpdatePostAsync(testData)).ReturnsAsync(true);
+        var postController = new PostController(_logger.Object, _postService.Object);
+
+        var actionResult = await postController.UpdatePost(testData.Id, testData);
+
+        Assert.NotNull(actionResult);
+        var noContentResult = Assert.IsAssignableFrom<NoContentResult>(actionResult);
+        Assert.True(noContentResult.StatusCode == 204);
+    }
+
+    [Fact]
+    public async void UpdatePostIdMismatch()
+    {
+        UpdatePostDto testData = new() { Id = 10 };
+        var postController = new PostController(_logger.Object, _postService.Object);
+
+        var actionResult = await postController.UpdatePost(testData.Id + 1, testData);
+
+        Assert.NotNull(actionResult);
+        var badRequestResult = Assert.IsAssignableFrom<BadRequestObjectResult>(actionResult);
+        Assert.True(badRequestResult.StatusCode == 400);
+        Assert.NotNull(badRequestResult.Value);
+        Assert.True(badRequestResult.Value.ToString() == "Invalid update data. Id values from URL mismatches Id value from data object.");
     }
 }
