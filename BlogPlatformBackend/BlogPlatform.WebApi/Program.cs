@@ -64,6 +64,8 @@ builder.Services.AddSwaggerGen(s =>
     });
 });
 
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -78,6 +80,12 @@ app.UseMiddleware<LoggingMiddleware>();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseCors((builder) => {
+    builder.AllowAnyOrigin();
+    builder.AllowAnyMethod();
+    builder.AllowAnyHeader();
+});
 
 app.MapControllers();
 
