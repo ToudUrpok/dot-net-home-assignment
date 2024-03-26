@@ -7,4 +7,7 @@ export default defineConfig({
     svgr(),
     react()
   ],
+  define: {
+    __API_URL__: JSON.stringify('https://localhost:7298')
+  }
 })
