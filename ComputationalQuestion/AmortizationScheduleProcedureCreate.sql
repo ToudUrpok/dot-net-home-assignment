@@ -6,12 +6,12 @@ CREATE PROCEDURE CREATE_LOAN_AMORTIZATION_SCHEDULE
 	@beg_dt DATE	-- the date of the first payment.
 AS
 	WITH 
-		cte_n1 (n) AS ( SELECT 1 FROM (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) n (n) ), 
-		cte_n2 (n) AS ( SELECT 1 FROM cte_n1 a CROSS JOIN cte_n1 b ),
+		cte_n1 (n) AS ( SELECT 1 FROM (VALUES (1),(1),(1),(1),(1),(1),(1),(1),(1),(1)) n (n) ), -- 10 rows
+		cte_n2 (n) AS ( SELECT 1 FROM cte_n1 a CROSS JOIN cte_n1 b ),							-- 100 rows
 		cte_Tally (n) AS
 		(
 			SELECT TOP (@n) ROW_NUMBER() OVER (ORDER BY a.n)
-			FROM cte_n2 a CROSS JOIN cte_n2 b
+			FROM cte_n2 a CROSS JOIN cte_n2 b													-- 10000 rows
 			ORDER BY a.n
 		)
 	SELECT pmt_num = t.n,
