@@ -35,7 +35,7 @@ public class CommentController(ILogger<CommentController> logger, ICommentsServi
     {
         if (id != data.Id)
         {
-            return BadRequest();
+            return BadRequest("Invalid update data. Id values from URL mismatches Id value from data object.");
         }
 
         var result = await _commentsService.UpdateCommentAsync(data);

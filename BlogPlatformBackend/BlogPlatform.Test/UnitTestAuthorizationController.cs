@@ -15,7 +15,7 @@ public class UnitTestAuthorizationController
     [Fact]
     public async void LoginOk()
     {
-        LoginDto testData = new() { UserName = "test", Password = "test" };
+        LoginDto testData = new();
         string testToken = "test_token_123456";
         _loginService.Setup(ls => ls.Login(testData)).ReturnsAsync(testToken);
         var authorizationController = new AuthorizationController(_logger.Object, _loginService.Object);
