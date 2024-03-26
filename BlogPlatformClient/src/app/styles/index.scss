@@ -1,0 +1,18 @@
+@import "reset";
+@import "variables/global";
+
+body {
+  font: var(--font-m);
+  color: var(--secondary-color);
+}
+
+.app {
+  min-height: 100vh;
+  width: 100vw;
+  background: var(--bg-color);
+  position: fixed;
+}
+
+.content-page {
+  display: flex;
+}

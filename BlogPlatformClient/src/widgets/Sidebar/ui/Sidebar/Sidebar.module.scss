@@ -1,0 +1,27 @@
+.Sidebar {
+    height: calc(100vh - var(--navbar-height));
+    width: var(--sidebar-width);
+    background: var(--bg-color-inverted);
+    position: relative;
+    transition: width 0.3s;
+    align-items: center;
+}
+
+.Collapsed {
+    width: var(--sidebar-collapsed-width);
+}
+
+.SidebarCollapse {
+    display: flex;
+    justify-content: right;
+    width: 100%;
+}
+
+.LinkItemsList {
+    margin-top: 20px;
+    margin-left: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 100%;
+}
