@@ -1,0 +1,20 @@
+.Input {
+    padding: 6px;
+    border: 1px solid var(--contrast-color);
+    display: flex;
+}
+
+.Input_Input {
+    cursor: text;
+    color: var(--secondary-color);
+    caret-color: var(--secondary-color);
+    border: none;
+    background: none;
+    outline: none;
+    width: 100%;
+    padding-right: 4px;
+}
+
+.readonly {
+    opacity: 0.7;
+}

@@ -1,7 +1,10 @@
 import { RoutePaths } from '../../../shared/config/routeConfig/routeConfig'
 import { ISidebarNavItem } from './SidebarNavItem'
 import BlogIcon from '../../../shared/assets/icons/link-blog-20-20.svg?react'
+import ProfileIcon from '../../../shared/assets/icons/link-profile-17-20.svg?react'
 import { useMemo } from 'react'
+import { selectUserAuthToken } from '../../../entities/User'
+import { useAppSelector } from '../../../shared/hooks/useAppSelector'
 
 const publicSidebarNavItems: ISidebarNavItem[] = [
     {
@@ -12,17 +15,22 @@ const publicSidebarNavItems: ISidebarNavItem[] = [
 ]
 
 export const useSidebarNavItems = (): ISidebarNavItem[] => {
-    const authData = true
+    const auth = useAppSelector(selectUserAuthToken)
 
     const items = useMemo<ISidebarNavItem[]>(() => {
-        if (authData) {
+        if (auth) {
             return [
                 ...publicSidebarNavItems,
+                {
+                    Path: RoutePaths.profile,
+                    Label: 'Profile',
+                    Icon: ProfileIcon
+                }
             ]
         }
 
         return publicSidebarNavItems
-    }, [authData])
+    }, [auth])
 
     return items
 }
