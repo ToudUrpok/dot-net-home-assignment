@@ -18,6 +18,7 @@ public class BlogContext(DbContextOptions<BlogContext> options)
             {
                 Id = 1,
                 UserName = "TestUser",
+                Email = "test@gmail.com",
                 Password = "123456"
             });
     }

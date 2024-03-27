@@ -18,7 +18,7 @@ public class LoginService(BlogContext dbContext, IConfiguration configuration) :
     {
         var user = await _dbContext.AppUsers
             .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.UserName == data.UserName && u.Password == data.Password);
+            .FirstOrDefaultAsync(u => u.Email == data.Email && u.Password == data.Password);
         if (user is null) return null;
 
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -29,7 +29,8 @@ public class LoginService(BlogContext dbContext, IConfiguration configuration) :
             Audience = _configuration["Jwt:Audience"],
             Subject = new ClaimsIdentity(new Claim[]
             {
-                new(ClaimTypes.Name, user.UserName)
+                new(ClaimTypes.Name, user.UserName),
+                new(ClaimTypes.Email, user.Email)
             }),
             Expires = DateTime.UtcNow.AddMinutes(30),
             SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)

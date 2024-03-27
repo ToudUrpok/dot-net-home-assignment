@@ -1,9 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace BlogPlatform.Dtos;
 
-public class LoginDto
+public class CreateUserDto
 {
     [Required]
     [DataType(DataType.EmailAddress)]
