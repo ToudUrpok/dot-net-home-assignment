@@ -13,3 +13,7 @@ export {
 export {
     PostDetailed
 } from './ui/PostDetailed/PostDetailed'
+
+export {
+    CreatePostForm
+} from './ui/CreatePostForm/CreatePostForm'
