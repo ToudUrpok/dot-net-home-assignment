@@ -8,5 +8,6 @@ public class CommentDto
     public long Id { get; set; }
 
     [Required]
+    [MaxLength(100)]
     public string Text { get; set; }
 }

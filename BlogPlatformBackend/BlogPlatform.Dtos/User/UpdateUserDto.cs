@@ -8,5 +8,6 @@ public class UpdateUserDto
     public int Id { get; set; }
 
     [Required]
+    [MaxLength(64)]
     public string UserName { get; set; }
 }

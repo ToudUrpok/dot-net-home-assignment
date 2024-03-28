@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\BlogPlatform.Data\BlogPlatform.Data.csproj" />
     <ProjectReference Include="..\BlogPlatform.Dtos\BlogPlatform.Dtos.csproj" />
   </ItemGroup>

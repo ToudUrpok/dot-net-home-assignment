@@ -18,9 +18,8 @@ public class PostController(ILogger<PostController> logger, IPostsService postsS
     public async Task<ActionResult<IEnumerable<PostDto>>> GetPosts()
     {
         var posts = await _postsService.GetPostsAsync();
-        if (posts is null) return BadRequest();
 
-        return posts.Any() ? Ok(posts) : NotFound();
+        return Ok(posts);
     }
 
     [HttpGet("{id}", Name = nameof(GetPost))]
@@ -43,11 +42,6 @@ public class PostController(ILogger<PostController> logger, IPostsService postsS
     [HttpPut("{id}", Name = nameof(UpdatePost))]
     public async Task<IActionResult> UpdatePost(long id, UpdatePostDto post)
     {
-        if (id != post.Id)
-        {
-            return BadRequest("Invalid update data. Id values from URL mismatches Id value from data object.");
-        }
-
         var result = await _postsService.UpdatePostAsync(post);
 
         return result ? NoContent() : BadRequest();

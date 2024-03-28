@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using Microsoft.Net.Http.Headers;
+using System.Text;
 
 namespace BlogPlatform.WebApi.Middleware;
 
@@ -13,13 +14,10 @@ public class LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> 
 
         var originalResponseBody = context.Response.Body;
 
-        using (var responseBody = new MemoryStream())
-        {
-            context.Response.Body = responseBody;
-            await _next.Invoke(context);
-
-            await LogResponse(context, responseBody, originalResponseBody);
-        }
+        using var responseBody = new MemoryStream();
+        context.Response.Body = responseBody;
+        await _next.Invoke(context);
+        await LogResponse(context, responseBody, originalResponseBody);
     }
 
     private async Task LogResponse(HttpContext context, MemoryStream responseBody, Stream originalResponseBody)
@@ -28,9 +26,9 @@ public class LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> 
         responseContent.AppendLine("=== Response Info ===");
 
         responseContent.AppendLine("-- headers");
-        foreach (var (headerKey, headerValue) in context.Response.Headers)
+        foreach (var (name, value) in context.Response.Headers)
         {
-            responseContent.AppendLine($"header = {headerKey}    value = {headerValue}");
+            responseContent.AppendLine($"header = {name}    value = {value}");
         }
 
         responseContent.AppendLine("-- body");
@@ -53,9 +51,10 @@ public class LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> 
         requestContent.AppendLine($"path = {context.Request.Path}");
 
         requestContent.AppendLine("-- headers");
-        foreach (var (headerKey, headerValue) in context.Request.Headers)
+        foreach (var (name, value) in context.Request.Headers)
         {
-            requestContent.AppendLine($"header = {headerKey}    value = {headerValue}");
+            string loggedValue = name.Equals(HeaderNames.Authorization, StringComparison.CurrentCultureIgnoreCase) ? string.Empty : value.ToString();
+            requestContent.AppendLine($"header = {name}    value = {loggedValue}");
         }
 
         requestContent.AppendLine("-- body");

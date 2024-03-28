@@ -33,11 +33,6 @@ public class CommentController(ILogger<CommentController> logger, ICommentsServi
     [HttpPut("{id}", Name = nameof(UpdateComment))]
     public async Task<IActionResult> UpdateComment(long id, CommentDto data)
     {
-        if (id != data.Id)
-        {
-            return BadRequest("Invalid update data. Id values from URL mismatches Id value from data object.");
-        }
-
         var result = await _commentsService.UpdateCommentAsync(data);
 
         return result ? NoContent() : BadRequest();

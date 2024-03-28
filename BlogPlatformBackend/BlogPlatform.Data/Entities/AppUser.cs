@@ -13,5 +13,7 @@ public class AppUser
 
     [MaxLength(320)]
     public string Email {  get; set; }
+
+    [MaxLength(128)]    //IdentityV2 - 68, IdentityV3 - 84
     public string Password { get; set; }
 }

@@ -9,12 +9,12 @@ public class PostsService(BlogContext dbContext) : IPostsService
 {
     private readonly BlogContext _dbContext = dbContext;
 
-    public async Task<IEnumerable<PostDto>?> GetPostsAsync()
+    public async Task<IEnumerable<PostDto>> GetPostsAsync()
     {
         var postsEntries = await _dbContext.Posts
             .AsNoTracking()
             .ToListAsync();
-        if (postsEntries is null) return null;
+        if (postsEntries is null) return [];
 
         List<PostDto> postsDtos = [];
         foreach (var postEntry in postsEntries)
@@ -35,9 +35,9 @@ public class PostsService(BlogContext dbContext) : IPostsService
         var postEntry = await _dbContext.Posts
             .Include(p => p.Comments)
             .AsNoTracking()
-            .FirstOrDefaultAsync(p => p.Id == id);
+            .SingleOrDefaultAsync(p => p.Id == id);
 
-        return postEntry is null ? null : CreatePostDto(postEntry);
+        return postEntry is null ? null : MapPostToDto(postEntry);
     }
 
     public async Task<PostDto?> CreatePostAsync(CreatePostDto data)
@@ -49,12 +49,12 @@ public class PostsService(BlogContext dbContext) : IPostsService
         });
         await _dbContext.SaveChangesAsync();
 
-        return CreatePostDto(postEntry.Entity);
+        return MapPostToDto(postEntry.Entity);
     }
 
     public async Task<bool> UpdatePostAsync(UpdatePostDto post)
     {
-        var postEntry = await _dbContext.Posts.FindAsync(post.Id);
+        var postEntry = await _dbContext.Posts.SingleOrDefaultAsync(p => p.Id == post.Id);
         if (postEntry is null) return false;
 
         if (postEntry.Title != post.Title)
@@ -72,7 +72,7 @@ public class PostsService(BlogContext dbContext) : IPostsService
 
     public async Task<bool> DeletePostAsync(long id)
     {
-        var postEntry = await _dbContext.Posts.FindAsync(id);
+        var postEntry = await _dbContext.Posts.SingleOrDefaultAsync(p => p.Id == id);
         if (postEntry is null) return false;
 
         _dbContext.Posts.Remove(postEntry);
@@ -81,27 +81,24 @@ public class PostsService(BlogContext dbContext) : IPostsService
         return true;
     }
 
-    private static PostDto CreatePostDto(Post entry)
+    // Implement with AutoMapper in future
+    private static PostDto MapPostToDto(Post entry)
     {
         var postDto = new PostDto()
         {
             Id = entry.Id,
             Title = entry.Title,
             Content = entry.Content,
+            Comments = []
         };
 
-        if (entry.Comments.Count > 0)
+        foreach (var comment in entry.Comments)
         {
-            var comments = new List<CommentDto>();
-            foreach (var comment in entry.Comments)
+            postDto.Comments.Add(new CommentDto()
             {
-                comments.Add(new CommentDto()
-                {
-                    Id = comment.Id,
-                    Text = comment.Text
-                });
-            }
-            postDto.Comments = comments;
+                Id = comment.Id,
+                Text = comment.Text
+            });
         }
 
         return postDto;

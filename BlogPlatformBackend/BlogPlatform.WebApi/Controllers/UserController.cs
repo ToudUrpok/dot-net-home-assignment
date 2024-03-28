@@ -48,11 +48,6 @@ public class UserController(ILogger<UserController> logger, IUsersService usersS
     [HttpPut("{id}", Name = nameof(UpdateUser))]
     public async Task<IActionResult> UpdateUser(long id, UpdateUserDto data)
     {
-        if (id != data.Id)
-        {
-            return BadRequest("Invalid update data. Id values from URL mismatches Id value from data object.");
-        }
-
         var result = await _usersService.UpdateUserAsync(data);
 
         return result ? NoContent() : BadRequest();

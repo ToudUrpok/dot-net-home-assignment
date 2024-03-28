@@ -8,5 +8,6 @@ public class CreateCommentDto
     public long PostId { get; set; }
 
     [Required]
+    [MaxLength(100)]
     public string Text { get; set; }
 }

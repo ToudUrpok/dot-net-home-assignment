@@ -6,6 +6,8 @@ using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using BlogPlatform.Data.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace BlogPlatform.Services;
 
@@ -13,13 +15,17 @@ public class LoginService(BlogContext dbContext, IConfiguration configuration) :
 {
     private readonly BlogContext _dbContext = dbContext;
     private readonly IConfiguration _configuration = configuration;
+    private readonly PasswordHasher<AppUser> _passwordHasher = new();
 
     public async Task<string?> Login(LoginDto data)
     {
         var user = await _dbContext.AppUsers
             .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Email == data.Email && u.Password == data.Password);
+            .SingleOrDefaultAsync(u => u.Email == data.Email);
         if (user is null) return null;
+
+        var result = _passwordHasher.VerifyHashedPassword(user, user.Password, data.Password);
+        if (result == PasswordVerificationResult.Failed) return null;
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"] ?? "defaultkey");
