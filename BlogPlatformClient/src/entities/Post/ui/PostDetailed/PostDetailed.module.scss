@@ -1,0 +1,22 @@
+.PostDetailed {
+    padding: 20 px;
+}
+
+.Post {
+    padding: 20 px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.Title {
+    word-wrap: break-word;
+}
+
+.Content {
+    word-wrap: break-word;
+}
+
+.PostComments {
+    margin-top: 20px;
+}

@@ -2,11 +2,10 @@
     margin-top: 10px;
     display: flex;
     align-items: center;
+    white-space: nowrap;    
 }
 
 .SidebarLinkWrapper {
-    margin: 0 10px;
-    
     &:hover {
         opacity: 0.8;
     }
@@ -26,5 +25,7 @@
 
 .SidebarItemIcon {
     margin-right: 10px;
-    fill: var(--contrast-color);
+    stroke: var(--contrast-color);
+    width: 25px;
+    height: 25px;
 }

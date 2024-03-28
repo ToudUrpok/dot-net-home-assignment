@@ -1,11 +1,18 @@
 import { createAsyncThunk } from '@reduxjs/toolkit'
-import { userActions } from '../../../../entities/User'
 import { $API } from '../../../../shared/api/APIInstance'
-import { USER_AUTH_TOKEN } from '../../../../shared/const/localStorage'
-import { LoginFormFields } from '../types/loginFormFields'
+import { AppDispatch, RootState } from '../../../../app/store/store'
 
-export const login = createAsyncThunk<string, LoginFormFields, { rejectValue: Error }>(
-    'login/login',
+export interface LoginUserProps {
+    email: string
+    password: string
+}
+
+export const loginUser = createAsyncThunk<
+    string, 
+    LoginUserProps, 
+    { rejectValue: Error, dispatch: AppDispatch, state: RootState }
+>(
+    'user/loginUser',
     async (loginData, thunkAPI) => {
         try {
             const response = await $API.post<string>('/Authorization', loginData)
@@ -13,9 +20,6 @@ export const login = createAsyncThunk<string, LoginFormFields, { rejectValue: Er
             if (!response.data || Math.floor(response.status / 100) !== 2) {
                 throw new Error(`Status: ${response.status}\nStatus Text:${response.statusText}\nData:${response.data}`)
             }
-
-            localStorage.setItem(USER_AUTH_TOKEN, response.data)
-            thunkAPI.dispatch(userActions.setAuthToken(response.data))
 
             return response.data
         } catch (err) {

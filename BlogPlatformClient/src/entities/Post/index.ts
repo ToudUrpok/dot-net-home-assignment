@@ -9,3 +9,7 @@ export {
 export {
     PostsList
 } from './ui/PostsList/PostsList'
+
+export {
+    PostDetailed
+} from './ui/PostDetailed/PostDetailed'

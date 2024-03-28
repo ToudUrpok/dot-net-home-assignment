@@ -1,13 +1,16 @@
 .LoginForm {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    width: 100%;
+    gap: 20px;
 }
 
-.InputField {
-    margin-top: 20px;
+.ValidationError {
+    margin-top: -15px;
+    color: red;
 }
 
-.LoginBtn {
-    margin-top: 30px;
-    margin-left: auto;
+.LoginError {
+    color: red;
 }

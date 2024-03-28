@@ -1,3 +1,37 @@
 .PostCard {
+    width: 300px;
+    opacity: 0.9;
+    transition: 0.2s;
+    cursor: pointer;
+
+    .ReadLink {
+        position: absolute;
+        right: 10px;
+        bottom: 5px;
+        display: none;
+    }
+
+    &:hover {
+        opacity: 1;
+        transform: scale(1.01);
+
+        .ReadLink {
+            display: block;
+        }
+    }
+
+    .Title {
+        margin-top: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
     
+    .Content {
+        margin: 15px 0px;
+        width: 250px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 }

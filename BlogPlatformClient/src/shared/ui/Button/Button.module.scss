@@ -1,7 +1,8 @@
 .Button {
     cursor: pointer;
     color: var(--secondary-color);
-    padding: 6px 15px;
+    padding: 3px 10px;
+    border-radius: 10px;
 
     &:hover {
         opacity: 0.7;
@@ -24,7 +25,6 @@
 }
 
 .outlined {
-    padding: 10px 15px;
     border: 1px solid var(--contrast-color);
     color: var(--contrast-color);
     background: none;
@@ -32,8 +32,7 @@
 
 .background {
     background: var(--bg-color);
-    color: var(--contrast-color);
-    border: none;
+    border: 1px solid var(--secondary-color);
 }
 
 .backgroundInverted {

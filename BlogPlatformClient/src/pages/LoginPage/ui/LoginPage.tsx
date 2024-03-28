@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { LoginForm } from '../../../feature/Authorization'
 import { Page } from '../../../widgets/Page'
 import { memo, useCallback } from 'react'
+import { Card } from '../../../shared/ui/Card/Card'
 
 const LoginPage = () => {
     const navigate = useNavigate()
@@ -16,7 +17,11 @@ const LoginPage = () => {
     return (
         <Page className={styles.LoginPage}>
             <h1>Login Page</h1>
-            <LoginForm onSuccess={navigateBack} />
+            <Card className={styles.LoginCard}>
+                <LoginForm 
+                    onSuccess={navigateBack}
+                 />
+            </Card>
         </Page>
     )
 }
