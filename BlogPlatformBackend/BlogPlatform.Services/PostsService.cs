@@ -81,7 +81,7 @@ public class PostsService(BlogContext dbContext) : IPostsService
         return true;
     }
 
-    // Implement with AutoMapper in future
+    // Implement with AutoMapper later
     private static PostDto MapPostToDto(Post entry)
     {
         var postDto = new PostDto()

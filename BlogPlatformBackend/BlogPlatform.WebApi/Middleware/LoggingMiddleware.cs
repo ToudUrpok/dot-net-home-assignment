@@ -10,17 +10,33 @@ public class LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> 
 
     public async Task Invoke(HttpContext context)
     {
-        await LogRequest(context);
+        bool isPostMethod = context.Request.Method.Equals(HttpMethods.Post, StringComparison.CurrentCultureIgnoreCase);
+        bool isAuthorizationRequest = isPostMethod
+            && context.Request.Path.HasValue
+            && context.Request.Path.Value.Equals("/Authorization", StringComparison.CurrentCultureIgnoreCase);
+        bool isCreateUserRequest = isPostMethod
+            && context.Request.Path.HasValue
+            && context.Request.Path.Value.Equals("/User", StringComparison.CurrentCultureIgnoreCase);
+        // to prevent user secret data from request/response body to be logged
 
-        var originalResponseBody = context.Response.Body;
+        await LogRequest(context, !(isAuthorizationRequest || isCreateUserRequest));
 
-        using var responseBody = new MemoryStream();
-        context.Response.Body = responseBody;
-        await _next.Invoke(context);
-        await LogResponse(context, responseBody, originalResponseBody);
+        if (!isAuthorizationRequest)
+        {
+            var originalResponseBody = context.Response.Body;
+            using var responseBody = new MemoryStream();
+                context.Response.Body = responseBody;
+                await _next.Invoke(context);
+                await LogResponse(context, responseBody, originalResponseBody);
+        }
+        else
+        {
+            await _next.Invoke(context);
+            await LogResponse(context);
+        }
     }
 
-    private async Task LogResponse(HttpContext context, MemoryStream responseBody, Stream originalResponseBody)
+    private async Task LogResponse(HttpContext context, MemoryStream? responseBody = null, Stream? originalResponseBody = null)
     {
         var responseContent = new StringBuilder();
         responseContent.AppendLine("=== Response Info ===");
@@ -30,19 +46,22 @@ public class LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> 
         {
             responseContent.AppendLine($"header = {name}    value = {value}");
         }
-
-        responseContent.AppendLine("-- body");
-        responseBody.Position = 0;
-        var content = await new StreamReader(responseBody).ReadToEndAsync();
-        responseContent.AppendLine($"body = {content}");
-        responseBody.Position = 0;
-        await responseBody.CopyToAsync(originalResponseBody);
-        context.Response.Body = originalResponseBody;
+        
+        if (responseBody is not null && originalResponseBody is not null)
+        {
+            responseContent.AppendLine("-- body");
+            responseBody.Position = 0;
+            var content = await new StreamReader(responseBody).ReadToEndAsync();
+            responseContent.AppendLine($"body = {content}");
+            responseBody.Position = 0;
+            await responseBody.CopyToAsync(originalResponseBody);
+            context.Response.Body = originalResponseBody;
+        }
 
         _logger.LogInformation(responseContent.ToString());
     }
 
-    private async Task LogRequest(HttpContext context)
+    private async Task LogRequest(HttpContext context, bool logBody)
     {
         var requestContent = new StringBuilder();
 
@@ -57,13 +76,16 @@ public class LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> 
             requestContent.AppendLine($"header = {name}    value = {loggedValue}");
         }
 
-        requestContent.AppendLine("-- body");
-        context.Request.EnableBuffering();
-        var requestReader = new StreamReader(context.Request.Body);
-        var content = await requestReader.ReadToEndAsync();
-        requestContent.AppendLine($"body = {content}");
+        if (logBody)
+        {
+            requestContent.AppendLine("-- body");
+            context.Request.EnableBuffering();
+            var requestReader = new StreamReader(context.Request.Body);
+            var content = await requestReader.ReadToEndAsync();
+            requestContent.AppendLine($"body = {content}");
+            context.Request.Body.Position = 0;
+        }
 
         _logger.LogInformation(requestContent.ToString());
-        context.Request.Body.Position = 0;
     }
 }
