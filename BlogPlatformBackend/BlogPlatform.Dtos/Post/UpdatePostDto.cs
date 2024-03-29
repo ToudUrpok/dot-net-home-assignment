@@ -9,9 +9,9 @@ public class UpdatePostDto
 
     [Required]
     [MaxLength(100)]
-    public string Title { get; set; }
+    public required string Title { get; set; }
 
     [Required]
     [MaxLength(1000)]
-    public string Content { get; set; }
+    public required string Content { get; set; }
 }

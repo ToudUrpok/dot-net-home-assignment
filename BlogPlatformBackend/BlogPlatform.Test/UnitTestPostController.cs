@@ -107,7 +107,7 @@ public class UnitTestPostController()
     [Fact]
     public async void CreatePostCreated()
     {
-        CreatePostDto testData = new() { Title = "Created Title", Content = "Created Content" };
+        CreatePostDto testData = new() { Title = "Test", Content = "Test" };
         PostDto testResult = new() { Id = 5, Title = testData.Title, Content = testData.Content };
         _postService.Setup(ps => ps.CreatePostAsync(testData)).ReturnsAsync(testResult);
         var postController = new PostController(_logger.Object, _postService.Object);
@@ -130,7 +130,7 @@ public class UnitTestPostController()
     [Fact]
     public async void CreatePostBadRequest()
     {
-        CreatePostDto testData = new();
+        CreatePostDto testData = new() { Title = string.Empty, Content = string.Empty };
         PostDto? testResult = null;
         _postService.Setup(ps => ps.CreatePostAsync(testData)).ReturnsAsync(testResult);
         var postController = new PostController(_logger.Object, _postService.Object);
@@ -145,11 +145,11 @@ public class UnitTestPostController()
     [Fact]
     public async void UpdatePostOk()
     {
-        UpdatePostDto testData = new();
+        UpdatePostDto testData = new() { Id = 1, Content = "Test", Title = "Test" };
         _postService.Setup(ps => ps.UpdatePostAsync(testData)).ReturnsAsync(true);
         var postController = new PostController(_logger.Object, _postService.Object);
 
-        var actionResult = await postController.UpdatePost(testData.Id, testData);
+        var actionResult = await postController.UpdatePost(testData);
 
         Assert.NotNull(actionResult);
         var noContentResult = Assert.IsAssignableFrom<NoContentResult>(actionResult);
@@ -159,11 +159,11 @@ public class UnitTestPostController()
     [Fact]
     public async void UpdatePostBadRequest()
     {
-        UpdatePostDto testData = new() { Id = 10 };
+        UpdatePostDto testData = new() { Id = 10, Title = string.Empty, Content = string.Empty };
         _postService.Setup(ps => ps.UpdatePostAsync(testData)).ReturnsAsync(false);
         var postController = new PostController(_logger.Object, _postService.Object);
 
-        var actionResult = await postController.UpdatePost(testData.Id, testData);
+        var actionResult = await postController.UpdatePost(testData);
 
         Assert.NotNull(actionResult);
         var badRequestResult = Assert.IsAssignableFrom<BadRequestResult>(actionResult);

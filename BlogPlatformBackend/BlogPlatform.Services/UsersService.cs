@@ -42,7 +42,7 @@ public class UsersService(BlogContext dbContext) : IUsersService
 
     public async Task<UserDto?> CreateUserAsync(CreateUserDto data)
     {
-        bool isEmailAlreadyUsed = await _dbContext.AppUsers.Where(u => u.Email == data.Email).AnyAsync();
+        bool isEmailAlreadyUsed = await _dbContext.AppUsers.AnyAsync(u => u.Email == data.Email);
         if (isEmailAlreadyUsed) return null;
 
         AppUser userToAdd = new()

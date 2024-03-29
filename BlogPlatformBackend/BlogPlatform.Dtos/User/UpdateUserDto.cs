@@ -9,5 +9,5 @@ public class UpdateUserDto
 
     [Required]
     [MaxLength(64)]
-    public string UserName { get; set; }
+    public required string UserName { get; set; }
 }

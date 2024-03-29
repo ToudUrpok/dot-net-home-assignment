@@ -9,11 +9,11 @@ public class AppUser
     public int Id { get; set; }
 
     [MaxLength(64)]
-    public string UserName { get; set; }
+    public required string UserName { get; set; }
 
     [MaxLength(320)]
-    public string Email {  get; set; }
+    public required string Email {  get; set; }
 
     [MaxLength(128)]    //IdentityV2 - 68, IdentityV3 - 84
-    public string Password { get; set; }
+    public string Password { get; set; } = string.Empty;
 }

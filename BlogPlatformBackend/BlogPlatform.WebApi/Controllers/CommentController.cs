@@ -30,8 +30,8 @@ public class CommentController(ILogger<CommentController> logger, ICommentsServi
         return comment is null ? BadRequest() : CreatedAtAction(nameof(GetComment), new { id = comment.Id }, comment);
     }
 
-    [HttpPut("{id}", Name = nameof(UpdateComment))]
-    public async Task<IActionResult> UpdateComment(long id, CommentDto data)
+    [HttpPut(Name = nameof(UpdateComment))]
+    public async Task<IActionResult> UpdateComment(CommentDto data)
     {
         var result = await _commentsService.UpdateCommentAsync(data);
 

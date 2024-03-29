@@ -39,8 +39,8 @@ public class PostController(ILogger<PostController> logger, IPostsService postsS
         return post is null ? BadRequest() : CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
     }
 
-    [HttpPut("{id}", Name = nameof(UpdatePost))]
-    public async Task<IActionResult> UpdatePost(long id, UpdatePostDto post)
+    [HttpPut(Name = nameof(UpdatePost))]
+    public async Task<IActionResult> UpdatePost(UpdatePostDto post)
     {
         var result = await _postsService.UpdatePostAsync(post);
 

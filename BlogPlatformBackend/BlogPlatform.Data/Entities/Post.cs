@@ -7,10 +7,10 @@ public class Post
     public long Id { get; set; }
 
     [MaxLength(100)]
-    public string Title { get; set; }
+    public required string Title { get; set; }
 
     [MaxLength(1000)]
-    public string Content { get; set; }
+    public required string Content { get; set; }
 
     public ICollection<Comment> Comments { get; set; } = [];
 }

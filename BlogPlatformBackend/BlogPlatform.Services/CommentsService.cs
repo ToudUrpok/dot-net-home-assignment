@@ -24,7 +24,7 @@ public class CommentsService(BlogContext dbContext) : ICommentsService
 
     public async Task<CommentDto?> CreateCommentAsync(CreateCommentDto data)
     {
-        bool isPostExist = await _dbContext.Posts.Where(p => p.Id == data.PostId).AnyAsync();
+        bool isPostExist = await _dbContext.Posts.AnyAsync(p => p.Id == data.PostId);
         if (!isPostExist) return null;
 
         var commentEntry = _dbContext.Comments.Add(new()

@@ -9,5 +9,5 @@ public class CreateCommentDto
 
     [Required]
     [MaxLength(100)]
-    public string Text { get; set; }
+    public required string Text { get; set; }
 }

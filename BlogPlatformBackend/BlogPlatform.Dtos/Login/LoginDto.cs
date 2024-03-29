@@ -8,12 +8,13 @@ public class LoginDto
     [Required]
     [MinLength(6)]
     [MaxLength(320)]
+    [EmailAddress]
     [DataType(DataType.EmailAddress)]
-    public string Email { get; set; }
+    public required string Email { get; set; }
 
     [Required]
     [MinLength(6)]
     [PasswordPropertyText]
     [DataType(DataType.Password)]
-    public string Password { get; set; }
+    public required string Password { get; set; }
 }

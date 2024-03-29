@@ -1,6 +1,5 @@
 ﻿using BlogPlatform.Dtos;
 using BlogPlatform.Services;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -45,8 +44,8 @@ public class UserController(ILogger<UserController> logger, IUsersService usersS
         return user is null ? BadRequest() : CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
     }
 
-    [HttpPut("{id}", Name = nameof(UpdateUser))]
-    public async Task<IActionResult> UpdateUser(long id, UpdateUserDto data)
+    [HttpPut(Name = nameof(UpdateUser))]
+    public async Task<IActionResult> UpdateUser(UpdateUserDto data)
     {
         var result = await _usersService.UpdateUserAsync(data);
 

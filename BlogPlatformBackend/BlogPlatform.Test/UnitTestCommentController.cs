@@ -70,7 +70,7 @@ public class UnitTestCommentController
     [Fact]
     public async void CreateCommentBadRequest()
     {
-        CreateCommentDto testData = new();
+        CreateCommentDto testData = new() { Text = "Test" };
         CommentDto? testResult = null;
         _commentsService.Setup(ps => ps.CreateCommentAsync(testData)).ReturnsAsync(testResult);
         var commentController = new CommentController(_logger.Object, _commentsService.Object);
@@ -89,7 +89,7 @@ public class UnitTestCommentController
         _commentsService.Setup(ps => ps.UpdateCommentAsync(testData)).ReturnsAsync(true);
         var commentController = new CommentController(_logger.Object, _commentsService.Object);
 
-        var actionResult = await commentController.UpdateComment(testData.Id, testData);
+        var actionResult = await commentController.UpdateComment(testData);
 
         Assert.NotNull(actionResult);
         var noContentResult = Assert.IsAssignableFrom<NoContentResult>(actionResult);
@@ -99,11 +99,11 @@ public class UnitTestCommentController
     [Fact]
     public async void UpdateCommentBadRequest()
     {
-        CommentDto testData = new() { Id = 1 };
+        CommentDto testData = new() { Id = 1, Text = "Test" };
         _commentsService.Setup(ps => ps.UpdateCommentAsync(testData)).ReturnsAsync(false);
         var commentController = new CommentController(_logger.Object, _commentsService.Object);
 
-        var actionResult = await commentController.UpdateComment(testData.Id, testData);
+        var actionResult = await commentController.UpdateComment(testData);
 
         Assert.NotNull(actionResult);
         var badRequestResult = Assert.IsAssignableFrom<BadRequestResult>(actionResult);

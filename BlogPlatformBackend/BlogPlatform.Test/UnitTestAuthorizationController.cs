@@ -15,7 +15,7 @@ public class UnitTestAuthorizationController
     [Fact]
     public async void LoginOk()
     {
-        LoginDto testData = new();
+        LoginDto testData = new() { Email = "test@email.com", Password = "123456" };
         string testToken = "test_token_123456";
         _loginService.Setup(ls => ls.Login(testData)).ReturnsAsync(testToken);
         var authorizationController = new AuthorizationController(_logger.Object, _loginService.Object);
@@ -33,7 +33,7 @@ public class UnitTestAuthorizationController
     [Fact]
     public async void LoginBadRequest()
     {
-        LoginDto testData = new();
+        LoginDto testData = new() { Email = "test", Password = "123" };
         string? testToken = null;
         _loginService.Setup(ls => ls.Login(testData)).ReturnsAsync(testToken);
         var authorizationController = new AuthorizationController(_logger.Object, _loginService.Object);
