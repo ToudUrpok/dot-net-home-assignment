@@ -50,15 +50,6 @@ namespace BlogPlatform.Data.Migrations
                         .IsUnique();
 
                     b.ToTable("AppUsers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Email = "test@gmail.com",
-                            Password = "123456",
-                            UserName = "TestUser"
-                        });
                 });
 
             modelBuilder.Entity("BlogPlatform.Data.Entities.Comment", b =>
