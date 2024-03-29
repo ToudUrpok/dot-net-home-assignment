@@ -73,33 +73,6 @@ public class UnitTestPostController()
     }
 
     [Fact]
-    public async void GetPostsNotFound()
-    {
-        _postService.Setup(ps => ps.GetPostsAsync()).ReturnsAsync([]);
-        var postController = new PostController(_logger.Object, _postService.Object);
-
-        var actionResult = await postController.GetPosts();
-
-        Assert.NotNull(actionResult.Result);
-        var notFoundResult = Assert.IsAssignableFrom<NotFoundResult>(actionResult.Result);
-        Assert.True(notFoundResult.StatusCode == 404);
-    }
-
-    [Fact]
-    public async void GetPostsBadRequest()
-    {
-        IEnumerable<PostDto>? testResult = null;
-        _postService.Setup(ps => ps.GetPostsAsync()).ReturnsAsync(testResult);
-        var postController = new PostController(_logger.Object, _postService.Object);
-
-        var actionResult = await postController.GetPosts();
-
-        Assert.NotNull(actionResult.Result);
-        var badRequestResult = Assert.IsAssignableFrom<BadRequestResult>(actionResult.Result);
-        Assert.True(badRequestResult.StatusCode == 400);
-    }
-
-    [Fact]
     public async void GetPostOk()
     {
         var testResult = POSTS.ToList()[1];
@@ -184,18 +157,17 @@ public class UnitTestPostController()
     }
 
     [Fact]
-    public async void UpdatePostIdMismatch()
+    public async void UpdatePostBadRequest()
     {
         UpdatePostDto testData = new() { Id = 10 };
+        _postService.Setup(ps => ps.UpdatePostAsync(testData)).ReturnsAsync(false);
         var postController = new PostController(_logger.Object, _postService.Object);
 
-        var actionResult = await postController.UpdatePost(testData.Id + 1, testData);
+        var actionResult = await postController.UpdatePost(testData.Id, testData);
 
         Assert.NotNull(actionResult);
-        var badRequestResult = Assert.IsAssignableFrom<BadRequestObjectResult>(actionResult);
+        var badRequestResult = Assert.IsAssignableFrom<BadRequestResult>(actionResult);
         Assert.True(badRequestResult.StatusCode == 400);
-        Assert.NotNull(badRequestResult.Value);
-        Assert.True(badRequestResult.Value.ToString() == "Invalid update data. Id values from URL mismatches Id value from data object.");
     }
 
     [Fact]

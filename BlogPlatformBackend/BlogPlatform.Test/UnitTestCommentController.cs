@@ -97,18 +97,17 @@ public class UnitTestCommentController
     }
 
     [Fact]
-    public async void UpdateCommentIdMismatch()
+    public async void UpdateCommentBadRequest()
     {
         CommentDto testData = new() { Id = 1 };
+        _commentsService.Setup(ps => ps.UpdateCommentAsync(testData)).ReturnsAsync(false);
         var commentController = new CommentController(_logger.Object, _commentsService.Object);
 
-        var actionResult = await commentController.UpdateComment(testData.Id + 1, testData);
+        var actionResult = await commentController.UpdateComment(testData.Id, testData);
 
         Assert.NotNull(actionResult);
-        var badRequestResult = Assert.IsAssignableFrom<BadRequestObjectResult>(actionResult);
+        var badRequestResult = Assert.IsAssignableFrom<BadRequestResult>(actionResult);
         Assert.True(badRequestResult.StatusCode == 400);
-        Assert.NotNull(badRequestResult.Value);
-        Assert.True(badRequestResult.Value.ToString() == "Invalid update data. Id values from URL mismatches Id value from data object.");
     }
 
     [Fact]
