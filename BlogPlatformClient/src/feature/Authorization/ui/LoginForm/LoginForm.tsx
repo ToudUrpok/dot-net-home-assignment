@@ -56,33 +56,57 @@ const LoginForm = ({ className, onSuccess, onFailed }: LoginFormProps) => {
             <Controller
                 name='email'
                 control={control}
-                rules={{ required: true }}
+                rules={{
+                    required: 'Email field is required.',
+                    minLength: {
+                        value: 6,
+                        message: 'Email is min 6 characters long.'
+                    },
+                    maxLength: {
+                        value: 320,
+                        message: 'Email is max 320 characters long.'
+                    }, 
+                    pattern: { 
+                        value: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g,
+                        message: 'Invalid Email value format.'
+                    }
+                }}
                 aria-invalid={errors.email ? 'true' : 'false'}
                 render={({ field }) =>
                     <Input
                         type={'email'}
                         placeholder='your@email.com'
+                        required
+                        minLength={6}
                         maxLength={320}
                         {...field}
                     />
                 }
             />
-            { errors.email && <p className={styles.ValidationError}>{errors.email.type}</p> }
+            { errors.email && <p className={styles.ValidationError}>{errors.email.message}</p> }
 
             <Controller
                 name='password'
                 control={control}
-                rules={{ required: true }}
+                rules={{
+                    required: 'Password field is required.',
+                    minLength: {
+                        value: 6,
+                        message: 'Password is min 6 characters long.'
+                    },
+                }}
                 aria-invalid={errors.password ? 'true' : 'false'}
                 render={({ field }) =>
                     <Input
                         type={'password'}
                         placeholder='password'
+                        required
+                        minLength={6}
                         {...field}
                     />
                 }
             />
-            { errors.password && <p className={styles.ValidationError}>{errors.password.type}</p> }
+            { errors.password && <p className={styles.ValidationError}>{errors.password.message}</p> }
 
             <Button
                 theme={'background'}
