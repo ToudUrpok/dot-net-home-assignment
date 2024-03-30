@@ -14,7 +14,11 @@
 }
 
 .Content {
-    word-wrap: break-word;
+    min-width: 100%;
+    max-width: 100%;
+    min-height: 250px;
+    max-height: 500px;
+    padding: 10px;
 }
 
 .PostComments {

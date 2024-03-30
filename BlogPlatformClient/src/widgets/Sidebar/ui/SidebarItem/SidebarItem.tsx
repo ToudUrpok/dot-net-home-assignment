@@ -1,11 +1,11 @@
 import styles from './SidebarItem.module.scss'
 import { cn } from '../../../../shared/lib/classNames/classNames'
-import { ISidebarNavItem } from '../../model/SidebarNavItem'
+import { SidebarNavItem } from '../../model/types/SidebarNavItem'
 import { AppLink } from '../../../../shared/ui/AppLink/AppLink'
 import { memo } from 'react'
 
 interface SidebarItemProps {
-    item: ISidebarNavItem
+    item: SidebarNavItem
     collapsed: boolean
 }
 

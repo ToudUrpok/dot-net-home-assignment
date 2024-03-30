@@ -39,7 +39,11 @@ export const PostDetailed = memo((props: PostDetailedProps) => {
         <div className={cn(styles.PostDetailed, {}, [className])}>
             <Card className={styles.Post}>
                 <h1 className={styles.Title}>{data?.title}</h1>
-                <p className={styles.Content}>{data?.content}</p>
+                <textarea
+                    disabled
+                    className={styles.Content}
+                    value={data?.content}
+                />
             </Card>
             {data?.comments && (
                 <CommentsList

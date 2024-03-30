@@ -1,3 +1,8 @@
 .CreatePostPage {
-    
+    display: flex;
+    flex-direction: column;
+}
+
+.Error {
+    color: red;
 }

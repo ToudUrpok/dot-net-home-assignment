@@ -2,7 +2,7 @@ import styles from './LoginForm.module.scss'
 import { cn } from '../../../../shared/lib/classNames/classNames'
 import { Button } from '../../../../shared/ui/Button/Button'
 import { Input } from '../../../../shared/ui/Input/Input'
-import { memo } from 'react'
+import { memo, useState } from 'react'
 import { 
     useForm, 
     SubmitHandler, 
@@ -28,6 +28,7 @@ const LoginForm = ({ className, onSuccess, onFailed }: LoginFormProps) => {
     const dispatch = useAppDispatch()
     const loginError = useAppSelector(selectUserError)
     const isLoading = useAppSelector(selectUserIsLoading)
+    const [ error, setError ] = useState<boolean>(false)
     const {
         control,
         handleSubmit,
@@ -38,12 +39,16 @@ const LoginForm = ({ className, onSuccess, onFailed }: LoginFormProps) => {
 
     const onSubmit: SubmitHandler<LoginFormFields> = async (data) => {
         if (data.email && data.password){
-            const loginResult = await dispatch(loginUser({ email: data.email, password: data.password }))
+            const loginResult = await dispatch(loginUser({ 
+                email: data.email,
+                password: data.password
+            }))
             if (loginResult.meta.requestStatus === 'fulfilled') {
                 await dispatch(fetchUser())
                 onSuccess()
             } else {
                 onFailed?.(loginError)
+                setError(true)
             }
         }
     }
@@ -53,6 +58,13 @@ const LoginForm = ({ className, onSuccess, onFailed }: LoginFormProps) => {
             className={cn(styles.LoginForm, {}, [className])}
             onSubmit={handleSubmit(onSubmit)}
         >
+            <div className={styles.LoginErrorWrapper}>
+                { error && (
+                    <p className={styles.LoginError}>
+                        {loginError}
+                    </p>
+                )}
+            </div>
             <Controller
                 name='email'
                 control={control}
@@ -76,14 +88,15 @@ const LoginForm = ({ className, onSuccess, onFailed }: LoginFormProps) => {
                     <Input
                         type={'email'}
                         placeholder='your@email.com'
-                        required
-                        minLength={6}
-                        maxLength={320}
                         {...field}
                     />
                 }
             />
-            { errors.email && <p className={styles.ValidationError}>{errors.email.message}</p> }
+            { errors.email && (
+                <p className={styles.ValidationError}>
+                    {errors.email.message}
+                </p>
+            )}
 
             <Controller
                 name='password'
@@ -100,24 +113,24 @@ const LoginForm = ({ className, onSuccess, onFailed }: LoginFormProps) => {
                     <Input
                         type={'password'}
                         placeholder='password'
-                        required
-                        minLength={6}
                         {...field}
                     />
                 }
             />
-            { errors.password && <p className={styles.ValidationError}>{errors.password.message}</p> }
+            { errors.password && (
+                <p className={styles.ValidationError}>
+                    {errors.password.message}
+                </p>
+            )}
 
             <Button
                 theme={'background'}
                 size='l'
                 type='submit'
-                disabled={!isDirty  || isLoading}
+                disabled={!isDirty || isLoading}
             >
                 Log In
             </Button>
-
-            {loginError && <p className={styles.LoginError}>{loginError}</p>}
         </form>
     )
 }

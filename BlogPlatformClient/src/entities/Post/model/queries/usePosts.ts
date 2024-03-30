@@ -1,17 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { $API } from '../../../../shared/api/APIInstance'
-import { Post } from '../types/post'
+import { fetchPosts } from '../api/fetchPosts'
 
 export const usePosts = () => {
     return useQuery({ queryKey: ['posts'], queryFn: fetchPosts })
-}
-
-const fetchPosts = async () => {
-    const response = await $API.get<Post[]>('/Post')
-        
-    if (!response.data || Math.floor(response.status / 100) !== 2) {
-        throw new Error(`Status: ${response.status}\nStatus Text:${response.statusText}\nData:${response.data}`)
-    }
-        
-    return response.data
 }

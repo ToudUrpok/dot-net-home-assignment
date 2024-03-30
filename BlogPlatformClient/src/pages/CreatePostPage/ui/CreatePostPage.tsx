@@ -17,6 +17,7 @@ const CreatePostPage = (props: CreatePostPageProps) => {
 
     const handleSuccess = useCallback(() => {
         setError(undefined)
+        alert('Post was Created Successfully.')
     }, [])
 
     const handleFailure = useCallback((error?: string) => {
@@ -25,9 +26,11 @@ const CreatePostPage = (props: CreatePostPageProps) => {
 
     return (
         <Page className={cn(styles.CreatePostPage, {}, [className])}>
-            <h1>Create Post Page</h1>
-            <h3>If you are able to access this Page you are authorized.</h3>
-            {error && <p>{error}</p>}
+            { error && (
+                <p className={styles.Error}>
+                    {error}
+                </p>
+            )}
             <CreatePostForm
                 onSuccess={handleSuccess}
                 onFailed={handleFailure}

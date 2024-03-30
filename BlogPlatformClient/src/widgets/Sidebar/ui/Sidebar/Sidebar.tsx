@@ -2,7 +2,7 @@ import styles from './Sidebar.module.scss'
 import { cn } from '../../../../shared/lib/classNames/classNames'
 import { memo, useMemo, useState } from 'react'
 import { SidebarItem } from '../SidebarItem/SidebarItem'
-import { useSidebarNavItems } from '../../model/useSidebarNavItems'
+import { useSidebarNavItems } from '../../model/hooks/useSidebarNavItems'
 import { Button } from '../../../../shared/ui/Button/Button'
 
 export const Sidebar = memo(() => {
