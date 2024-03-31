@@ -13,45 +13,63 @@ public class PostController(ILogger<PostController> logger, IPostsService postsS
     private readonly ILogger<PostController> _logger = logger;
     private readonly IPostsService _postsService = postsService;
 
+    /// <summary>
+    /// Gets all Posts.
+    /// </summary>
     [HttpGet(Name = nameof(GetPosts))]
     [AllowAnonymous]
+    [ProducesResponseType(typeof(IEnumerable<PostDto>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<PostDto>>> GetPosts()
     {
         var posts = await _postsService.GetPostsAsync();
-
         return Ok(posts);
     }
 
+    /// <summary>
+    /// Gets the Post with specified id.
+    /// </summary>
     [HttpGet("{id}", Name = nameof(GetPost))]
     [AllowAnonymous]
+    [ProducesResponseType(typeof(PostDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<PostDto>> GetPost(long id)
     {
         var post = await _postsService.GetPostAsync(id);
-
-        return post is null ? NotFound() : Ok(post);
+        return Ok(post);
     }
 
+    /// <summary>
+    /// Creates the Post.
+    /// </summary>
     [HttpPost(Name = nameof(CreatePost))]
+    [ProducesResponseType(typeof(PostDto), StatusCodes.Status201Created)]
     public async Task<ActionResult<PostDto>> CreatePost(CreatePostDto data)
     {
         var post = await _postsService.CreatePostAsync(data);
-
-        return post is null ? BadRequest() : CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
+        return CreatedAtAction(nameof(GetPost), new { id = post.Id }, post);
     }
 
+    /// <summary>
+    /// Updates the Post.
+    /// </summary>
     [HttpPut(Name = nameof(UpdatePost))]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdatePost(UpdatePostDto post)
     {
-        var result = await _postsService.UpdatePostAsync(post);
-
-        return result ? NoContent() : BadRequest();
+        await _postsService.UpdatePostAsync(post);
+        return NoContent();
     }
 
+    /// <summary>
+    /// Deletes the Post by specified id.
+    /// </summary>
     [HttpDelete("{id}", Name = nameof(DeletePost))]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeletePost(long id)
     {
-        var result = await _postsService.DeletePostAsync(id);
-
-        return result ? NoContent() : BadRequest();
+        await _postsService.DeletePostAsync(id);
+        return NoContent();
     }
 }

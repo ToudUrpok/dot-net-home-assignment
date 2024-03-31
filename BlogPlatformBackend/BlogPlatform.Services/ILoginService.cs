@@ -4,5 +4,5 @@ namespace BlogPlatform.Services;
 
 public interface ILoginService
 {
-    Task<string?> Login(LoginDto data);
+    Task<string> Login(LoginDto data);
 }

@@ -8,7 +8,7 @@ public class LoggingMiddleware(RequestDelegate next, ILogger<LoggingMiddleware> 
     private readonly RequestDelegate _next = next;
     private readonly ILogger<LoggingMiddleware> _logger = logger;
 
-    public async Task Invoke(HttpContext context)
+    public async Task InvokeAsync(HttpContext context)
     {
         bool isPostMethod = context.Request.Method.Equals(HttpMethods.Post, StringComparison.CurrentCultureIgnoreCase);
         bool isAuthorizationRequest = isPostMethod

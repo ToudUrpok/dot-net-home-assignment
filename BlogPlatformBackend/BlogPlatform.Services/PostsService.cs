@@ -2,6 +2,7 @@
 using BlogPlatform.Data;
 using BlogPlatform.Data.Entities;
 using BlogPlatform.Dtos;
+using BlogPlatform.Services.Exceptions;
 
 namespace BlogPlatform.Services;
 
@@ -14,7 +15,6 @@ public class PostsService(BlogContext dbContext) : IPostsService
         var postsEntries = await _dbContext.Posts
             .AsNoTracking()
             .ToListAsync();
-        if (postsEntries is null) return [];
 
         List<PostDto> postsDtos = [];
         foreach (var postEntry in postsEntries)
@@ -30,17 +30,18 @@ public class PostsService(BlogContext dbContext) : IPostsService
         return postsDtos;
     }
 
-    public async Task<PostDto?> GetPostAsync(long id)
+    public async Task<PostDto> GetPostAsync(long id)
     {
         var postEntry = await _dbContext.Posts
-            .Include(p => p.Comments)
-            .AsNoTracking()
-            .SingleOrDefaultAsync(p => p.Id == id);
+        .Include(p => p.Comments)
+        .AsNoTracking()
+        .SingleOrDefaultAsync(p => p.Id == id) ??
+            throw new EntityNotFoundException($"Post with id={id} is not found.");
 
-        return postEntry is null ? null : MapPostToDto(postEntry);
+        return MapPostToDto(postEntry);
     }
 
-    public async Task<PostDto?> CreatePostAsync(CreatePostDto data)
+    public async Task<PostDto> CreatePostAsync(CreatePostDto data)
     {
         var postEntry = _dbContext.Posts.Add(new()
         {
@@ -52,10 +53,10 @@ public class PostsService(BlogContext dbContext) : IPostsService
         return MapPostToDto(postEntry.Entity);
     }
 
-    public async Task<bool> UpdatePostAsync(UpdatePostDto post)
+    public async Task<PostDto> UpdatePostAsync(UpdatePostDto post)
     {
-        var postEntry = await _dbContext.Posts.SingleOrDefaultAsync(p => p.Id == post.Id);
-        if (postEntry is null) return false;
+        var postEntry = await _dbContext.Posts.SingleOrDefaultAsync(p => p.Id == post.Id) ??
+            throw new EntityNotFoundException($"Failed to update the post with id={post.Id} because such post doesn't exist.");
 
         if (postEntry.Title != post.Title)
         {
@@ -67,21 +68,30 @@ public class PostsService(BlogContext dbContext) : IPostsService
         }
         await _dbContext.SaveChangesAsync();
 
-        return true;
+        return new PostDto()
+        {
+            Id = postEntry.Id,
+            Title = postEntry.Title,
+            Content = postEntry.Content,
+        };
     }
 
-    public async Task<bool> DeletePostAsync(long id)
+    public async Task<PostDto> DeletePostAsync(long id)
     {
-        var postEntry = await _dbContext.Posts.SingleOrDefaultAsync(p => p.Id == id);
-        if (postEntry is null) return false;
+        var postEntry = await _dbContext.Posts.SingleOrDefaultAsync(p => p.Id == id) ??
+            throw new EntityNotFoundException($"Failed to delete the post with id={id} because such post doesn't exist.");
 
         _dbContext.Posts.Remove(postEntry);
         await _dbContext.SaveChangesAsync();
 
-        return true;
+        return new PostDto()
+        {
+            Id = postEntry.Id,
+            Title = postEntry.Title,
+            Content = postEntry.Content,
+        };
     }
 
-    // Implement with AutoMapper later
     private static PostDto MapPostToDto(Post entry)
     {
         var postDto = new PostDto()

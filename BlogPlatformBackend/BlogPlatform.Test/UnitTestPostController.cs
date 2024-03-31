@@ -1,5 +1,6 @@
 using Moq;
 using BlogPlatform.Services;
+using BlogPlatform.Services.Exceptions;
 using BlogPlatform.Dtos;
 using BlogPlatform.WebApi.Controllers;
 using Microsoft.Extensions.Logging;
@@ -59,7 +60,7 @@ public class UnitTestPostController()
     public async void GetPostsOK()
     {
         _postService.Setup(ps => ps.GetPostsAsync()).ReturnsAsync(POSTS);
-        var postController = new PostController(_logger.Object , _postService.Object);
+        var postController = new PostController(_logger.Object, _postService.Object);
 
         var actionResult = await postController.GetPosts();
 
@@ -91,17 +92,21 @@ public class UnitTestPostController()
     }
 
     [Fact]
-    public async void GetPostNotFound()
+    public async void GetPostEntityNotFoundException()
     {
-        PostDto? testResult = null;
-        _postService.Setup(ps => ps.GetPostAsync(10)).ReturnsAsync(testResult);
+        string errorMessage = $"Post with id={10} is not found.";
+        _postService.Setup(ps => ps.GetPostAsync(10)).ThrowsAsync(new EntityNotFoundException(errorMessage));
         var postController = new PostController(_logger.Object, _postService.Object);
 
-        var actionResult = await postController.GetPost(10);
-
-        Assert.NotNull(actionResult.Result);
-        var notFoundResult = Assert.IsAssignableFrom<NotFoundResult>(actionResult.Result);
-        Assert.True(notFoundResult.StatusCode == 404);
+        try
+        {
+            await postController.GetPost(10);
+        }
+        catch (EntityNotFoundException ex)
+        {
+            var entityNotFoundException = Assert.IsAssignableFrom<EntityNotFoundException>(ex);
+            Assert.True(entityNotFoundException.Message == errorMessage);
+        }
     }
 
     [Fact]
@@ -128,25 +133,11 @@ public class UnitTestPostController()
     }
 
     [Fact]
-    public async void CreatePostBadRequest()
-    {
-        CreatePostDto testData = new() { Title = string.Empty, Content = string.Empty };
-        PostDto? testResult = null;
-        _postService.Setup(ps => ps.CreatePostAsync(testData)).ReturnsAsync(testResult);
-        var postController = new PostController(_logger.Object, _postService.Object);
-
-        var actionResult = await postController.CreatePost(testData);
-
-        Assert.NotNull(actionResult.Result);
-        var badRequestResult = Assert.IsAssignableFrom<BadRequestResult>(actionResult.Result);
-        Assert.True(badRequestResult.StatusCode == 400);
-    }
-
-    [Fact]
-    public async void UpdatePostOk()
+    public async void UpdatePostNoContent()
     {
         UpdatePostDto testData = new() { Id = 1, Content = "Test", Title = "Test" };
-        _postService.Setup(ps => ps.UpdatePostAsync(testData)).ReturnsAsync(true);
+        PostDto testResult = new() { Id = 1, Content = "Test", Title = "Test" };
+        _postService.Setup(ps => ps.UpdatePostAsync(testData)).ReturnsAsync(testResult);
         var postController = new PostController(_logger.Object, _postService.Object);
 
         var actionResult = await postController.UpdatePost(testData);
@@ -157,26 +148,31 @@ public class UnitTestPostController()
     }
 
     [Fact]
-    public async void UpdatePostBadRequest()
+    public async void UpdatePostEntityNotFoundException()
     {
         UpdatePostDto testData = new() { Id = 10, Title = string.Empty, Content = string.Empty };
-        _postService.Setup(ps => ps.UpdatePostAsync(testData)).ReturnsAsync(false);
+        string errorMessage = $"Failed to update the post with id={testData.Id} because such post doesn't exist.";
+        _postService.Setup(ps => ps.UpdatePostAsync(testData)).ThrowsAsync(new EntityNotFoundException(errorMessage));
         var postController = new PostController(_logger.Object, _postService.Object);
-
-        var actionResult = await postController.UpdatePost(testData);
-
-        Assert.NotNull(actionResult);
-        var badRequestResult = Assert.IsAssignableFrom<BadRequestResult>(actionResult);
-        Assert.True(badRequestResult.StatusCode == 400);
+        try
+        {
+            await postController.UpdatePost(testData);
+        }
+        catch (EntityNotFoundException ex)
+        {
+            var entityNotFoundException = Assert.IsAssignableFrom<EntityNotFoundException>(ex);
+            Assert.True(entityNotFoundException.Message == errorMessage);
+        }
     }
 
     [Fact]
-    public async void DeletePostOk()
+    public async void DeletePostNoContent()
     {
-        _postService.Setup(ps => ps.DeletePostAsync(10)).ReturnsAsync(true);
+        PostDto testResult = new() { Id = 1, Content = "Test", Title = "Test" };
+        _postService.Setup(ps => ps.DeletePostAsync(1)).ReturnsAsync(testResult);
         var postController = new PostController(_logger.Object, _postService.Object);
 
-        var actionResult = await postController.DeletePost(10);
+        var actionResult = await postController.DeletePost(1);
 
         Assert.NotNull(actionResult);
         var noContentResult = Assert.IsAssignableFrom<NoContentResult>(actionResult);
@@ -184,15 +180,20 @@ public class UnitTestPostController()
     }
 
     [Fact]
-    public async void DeletePostBadRequest()
+    public async void DeletePostEntityNotFoundException()
     {
-        _postService.Setup(ps => ps.DeletePostAsync(10)).ReturnsAsync(false);
+        string errorMessage = $"Failed to update the post with id={10} because such post doesn't exist.";
+        _postService.Setup(ps => ps.DeletePostAsync(10)).ThrowsAsync(new EntityNotFoundException(errorMessage));
         var postController = new PostController(_logger.Object, _postService.Object);
 
-        var actionResult = await postController.DeletePost(10);
-
-        Assert.NotNull(actionResult);
-        var badRequestResult = Assert.IsAssignableFrom<BadRequestResult>(actionResult);
-        Assert.True(badRequestResult.StatusCode == 400);
+        try
+        {
+            await postController.DeletePost(10);
+        }
+        catch (EntityNotFoundException ex)
+        {
+            var entityNotFoundException = Assert.IsAssignableFrom<EntityNotFoundException>(ex);
+            Assert.True(entityNotFoundException.Message == errorMessage);
+        }
     }
 }

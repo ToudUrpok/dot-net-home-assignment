@@ -13,36 +13,53 @@ public class CommentController(ILogger<CommentController> logger, ICommentsServi
     private readonly ILogger<CommentController> _logger = logger;
     private readonly ICommentsService _commentsService = commentsService;
 
+    /// <summary>
+    /// Gets the Comment with specified id.
+    /// </summary>
     [HttpGet("{id}", Name = nameof(GetComment))]
     [AllowAnonymous]
+    [ProducesResponseType(typeof(CommentDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<CommentDto>> GetComment(long id)
     {
         var comment = await _commentsService.GetCommentAsync(id);
-
-        return comment is null ? NotFound() : Ok(comment);
+        return Ok(comment);
     }
 
+    /// <summary>
+    /// Creates the Comment.
+    /// </summary>
+    /// <response code="400">If attempt to add the Comment to not existing Post.</response>
     [HttpPost(Name = nameof(CreateComment))]
+    [ProducesResponseType(typeof(CommentDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<CommentDto>> CreateComment(CreateCommentDto data)
     {
         var comment = await _commentsService.CreateCommentAsync(data);
-
-        return comment is null ? BadRequest() : CreatedAtAction(nameof(GetComment), new { id = comment.Id }, comment);
+        return CreatedAtAction(nameof(GetComment), new { id = comment.Id }, comment);
     }
 
+    /// <summary>
+    /// Updates the Comment.
+    /// </summary>
     [HttpPut(Name = nameof(UpdateComment))]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateComment(CommentDto data)
     {
-        var result = await _commentsService.UpdateCommentAsync(data);
-
-        return result ? NoContent() : BadRequest();
+        await _commentsService.UpdateCommentAsync(data);
+        return NoContent();
     }
 
+    /// <summary>
+    /// Deletes the Comment by specified id.
+    /// </summary>
     [HttpDelete("{id}", Name = nameof(DeleteComment))]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ErrorDto), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteComment(long id)
     {
-        var result = await _commentsService.DeleteCommentAsync(id);
-
-        return result ? NoContent() : BadRequest();
+        await _commentsService.DeleteCommentAsync(id);
+        return NoContent();
     }
 }

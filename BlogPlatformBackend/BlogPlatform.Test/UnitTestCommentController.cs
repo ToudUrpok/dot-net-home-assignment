@@ -4,6 +4,8 @@ using BlogPlatform.Dtos;
 using BlogPlatform.WebApi.Controllers;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
+using BlogPlatform.Services.Exceptions;
+using BlogPlatform.Data.Entities;
 
 namespace BlogPlatform.Test;
 
@@ -12,11 +14,12 @@ public class UnitTestCommentController
     private readonly Mock<ICommentsService> _commentsService = new();
     private readonly Mock<ILogger<CommentController>> _logger = new();
 
+    private readonly CommentDto TEST_COMMENT_DTO = new() { Id = 2, Text = "Test Comment" };
+
     [Fact]
     public async void GetCommentOk()
     {
-        CommentDto? testResult = new() { Id = 2, Text = "Test Comment" };
-        _commentsService.Setup(ps => ps.GetCommentAsync(2)).ReturnsAsync(testResult);
+        _commentsService.Setup(ps => ps.GetCommentAsync(TEST_COMMENT_DTO.Id)).ReturnsAsync(TEST_COMMENT_DTO);
         var commentController = new CommentController(_logger.Object, _commentsService.Object);
 
         var actionResult = await commentController.GetComment(2);
@@ -26,30 +29,33 @@ public class UnitTestCommentController
         Assert.True(okResult.StatusCode == 200);
         Assert.NotNull(okResult.Value);
         var resultValue = Assert.IsAssignableFrom<CommentDto>(okResult.Value);
-        Assert.Equal(testResult.Id, resultValue.Id);
-        Assert.True(testResult.Equals(resultValue));
+        Assert.Equal(TEST_COMMENT_DTO.Id, resultValue.Id);
+        Assert.True(TEST_COMMENT_DTO.Equals(resultValue));
     }
 
     [Fact]
-    public async void GetCommentNotFound()
+    public async void GetCommentEntityNotFoundException()
     {
-        CommentDto? testResult = null;
-        _commentsService.Setup(ps => ps.GetCommentAsync(10)).ReturnsAsync(testResult);
+        string errorMessage = $"The comment with id={TEST_COMMENT_DTO.Id} is not found.";
+        _commentsService.Setup(ps => ps.GetCommentAsync(TEST_COMMENT_DTO.Id)).ThrowsAsync(new EntityNotFoundException(errorMessage));
         var commentController = new CommentController(_logger.Object, _commentsService.Object);
 
-        var actionResult = await commentController.GetComment(10);
-
-        Assert.NotNull(actionResult.Result);
-        var notFoundResult = Assert.IsAssignableFrom<NotFoundResult>(actionResult.Result);
-        Assert.True(notFoundResult.StatusCode == 404);
+        try
+        {
+            await commentController.GetComment(TEST_COMMENT_DTO.Id);
+        }
+        catch (EntityNotFoundException ex)
+        {
+            var entityNotFoundException = Assert.IsAssignableFrom<EntityNotFoundException>(ex);
+            Assert.True(entityNotFoundException.Message == errorMessage);
+        }
     }
 
     [Fact]
     public async void CreateCommentCreated()
     {
-        CreateCommentDto testData = new() { PostId = 1, Text = "Test Comment" };
-        CommentDto testResult = new() { Id = 1, Text = testData.Text };
-        _commentsService.Setup(ps => ps.CreateCommentAsync(testData)).ReturnsAsync(testResult);
+        CreateCommentDto testData = new() { PostId = TEST_COMMENT_DTO.Id, Text = TEST_COMMENT_DTO.Text };
+        _commentsService.Setup(ps => ps.CreateCommentAsync(testData)).ReturnsAsync(TEST_COMMENT_DTO);
         var commentController = new CommentController(_logger.Object, _commentsService.Object);
 
         var actionResult = await commentController.CreateComment(testData);
@@ -59,37 +65,39 @@ public class UnitTestCommentController
         Assert.True(createdAtActionResult.StatusCode == 201);
         object? routeValue = null;
         Assert.True(createdAtActionResult.RouteValues?.TryGetValue("id", out routeValue));
-        Assert.True(routeValue is not null && (long)routeValue == testResult.Id);
+        Assert.True(routeValue is not null && (long)routeValue == TEST_COMMENT_DTO.Id);
         Assert.True(createdAtActionResult.ActionName == nameof(commentController.GetComment));
         Assert.NotNull(createdAtActionResult.Value);
         var resultValue = Assert.IsAssignableFrom<CommentDto>(createdAtActionResult.Value);
-        Assert.Equal(testResult.Id, resultValue.Id);
-        Assert.True(testResult.Equals(resultValue));
+        Assert.Equal(TEST_COMMENT_DTO.Id, resultValue.Id);
+        Assert.True(TEST_COMMENT_DTO.Equals(resultValue));
     }
 
     [Fact]
-    public async void CreateCommentBadRequest()
+    public async void CreateCommentEntityDataValidationException()
     {
-        CreateCommentDto testData = new() { Text = "Test" };
-        CommentDto? testResult = null;
-        _commentsService.Setup(ps => ps.CreateCommentAsync(testData)).ReturnsAsync(testResult);
+        CreateCommentDto testData = new() { PostId = 1, Text = TEST_COMMENT_DTO.Text };
+        string errorMessage = $"Failed to add the comment to the post with id={testData.PostId} because such post doesn't exist.";
+        _commentsService.Setup(ps => ps.CreateCommentAsync(testData)).ThrowsAsync(new EntityDataValidationException(errorMessage));
         var commentController = new CommentController(_logger.Object, _commentsService.Object);
-
-        var actionResult = await commentController.CreateComment(testData);
-
-        Assert.NotNull(actionResult.Result);
-        var badRequestResult = Assert.IsAssignableFrom<BadRequestResult>(actionResult.Result);
-        Assert.True(badRequestResult.StatusCode == 400);
+        try
+        {
+            await commentController.CreateComment(testData);
+        }
+        catch (EntityDataValidationException ex)
+        {
+            var entityDataValidationException = Assert.IsAssignableFrom<EntityDataValidationException>(ex);
+            Assert.True(entityDataValidationException.Message == errorMessage);
+        }
     }
 
     [Fact]
-    public async void UpdateCommentOk()
+    public async void UpdateCommentNoContent()
     {
-        CommentDto testData = new() { Id = 1, Text = "Updated Text" };
-        _commentsService.Setup(ps => ps.UpdateCommentAsync(testData)).ReturnsAsync(true);
+        _commentsService.Setup(ps => ps.UpdateCommentAsync(TEST_COMMENT_DTO)).ReturnsAsync(TEST_COMMENT_DTO);
         var commentController = new CommentController(_logger.Object, _commentsService.Object);
 
-        var actionResult = await commentController.UpdateComment(testData);
+        var actionResult = await commentController.UpdateComment(TEST_COMMENT_DTO);
 
         Assert.NotNull(actionResult);
         var noContentResult = Assert.IsAssignableFrom<NoContentResult>(actionResult);
@@ -97,26 +105,30 @@ public class UnitTestCommentController
     }
 
     [Fact]
-    public async void UpdateCommentBadRequest()
+    public async void UpdateCommentEntityNotFoundException()
     {
-        CommentDto testData = new() { Id = 1, Text = "Test" };
-        _commentsService.Setup(ps => ps.UpdateCommentAsync(testData)).ReturnsAsync(false);
+        string errorMessage = $"Failed to update the comment with id={TEST_COMMENT_DTO.Id} because such comment doesn't exist.";
+        _commentsService.Setup(ps => ps.UpdateCommentAsync(TEST_COMMENT_DTO)).ThrowsAsync(new EntityNotFoundException(errorMessage));
         var commentController = new CommentController(_logger.Object, _commentsService.Object);
 
-        var actionResult = await commentController.UpdateComment(testData);
-
-        Assert.NotNull(actionResult);
-        var badRequestResult = Assert.IsAssignableFrom<BadRequestResult>(actionResult);
-        Assert.True(badRequestResult.StatusCode == 400);
+        try
+        {
+            await commentController.UpdateComment(TEST_COMMENT_DTO);
+        }
+        catch (EntityNotFoundException ex)
+        {
+            var entityNotFoundException = Assert.IsAssignableFrom<EntityNotFoundException>(ex);
+            Assert.True(entityNotFoundException.Message == errorMessage);
+        }
     }
 
     [Fact]
-    public async void DeleteCommentOk()
+    public async void DeleteCommentNoContent()
     {
-        _commentsService.Setup(ps => ps.DeleteCommentAsync(10)).ReturnsAsync(true);
+        _commentsService.Setup(ps => ps.DeleteCommentAsync(TEST_COMMENT_DTO.Id)).ReturnsAsync(TEST_COMMENT_DTO);
         var commentController = new CommentController(_logger.Object, _commentsService.Object);
 
-        var actionResult = await commentController.DeleteComment(10);
+        var actionResult = await commentController.DeleteComment(TEST_COMMENT_DTO.Id);
 
         Assert.NotNull(actionResult);
         var noContentResult = Assert.IsAssignableFrom<NoContentResult>(actionResult);
@@ -124,15 +136,20 @@ public class UnitTestCommentController
     }
 
     [Fact]
-    public async void DeleteCommentBadRequest()
+    public async void DeleteCommentEntityNotFoundException()
     {
-        _commentsService.Setup(ps => ps.DeleteCommentAsync(10)).ReturnsAsync(false);
+        string errorMessage = $"Failed to update the comment with id={TEST_COMMENT_DTO.Id} because such comment doesn't exist.";
+        _commentsService.Setup(ps => ps.DeleteCommentAsync(TEST_COMMENT_DTO.Id)).ThrowsAsync(new EntityNotFoundException(errorMessage));
         var commentController = new CommentController(_logger.Object, _commentsService.Object);
 
-        var actionResult = await commentController.DeleteComment(10);
-
-        Assert.NotNull(actionResult);
-        var badRequestResult = Assert.IsAssignableFrom<BadRequestResult>(actionResult);
-        Assert.True(badRequestResult.StatusCode == 400);
+        try
+        {
+            await commentController.DeleteComment(TEST_COMMENT_DTO.Id);
+        }
+        catch (EntityNotFoundException ex)
+        {
+            var entityNotFoundException = Assert.IsAssignableFrom<EntityNotFoundException>(ex);
+            Assert.True(entityNotFoundException.Message == errorMessage);
+        }
     }
 }

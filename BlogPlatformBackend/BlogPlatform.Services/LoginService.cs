@@ -8,6 +8,7 @@ using System.Security.Claims;
 using System.Text;
 using BlogPlatform.Data.Entities;
 using Microsoft.AspNetCore.Identity;
+using BlogPlatform.Services.Exceptions;
 
 namespace BlogPlatform.Services;
 
@@ -17,15 +18,15 @@ public class LoginService(BlogContext dbContext, IConfiguration configuration) :
     private readonly IConfiguration _configuration = configuration;
     private readonly PasswordHasher<AppUser> _passwordHasher = new();
 
-    public async Task<string?> Login(LoginDto data)
+    public async Task<string> Login(LoginDto data)
     {
         var user = await _dbContext.AppUsers
-            .AsNoTracking()
-            .SingleOrDefaultAsync(u => u.Email == data.Email);
-        if (user is null) return null;
+        .AsNoTracking()
+        .SingleOrDefaultAsync(u => u.Email == data.Email) ??
+            throw new EntityNotFoundException($"The user with email={data.Email} is not found.");
 
         var result = _passwordHasher.VerifyHashedPassword(user, user.Password, data.Password);
-        if (result == PasswordVerificationResult.Failed) return null;
+        if (result == PasswordVerificationResult.Failed) throw new UserLoginException("Invalid password.");
 
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_configuration["Jwt:Key"] ?? "defaultkey");

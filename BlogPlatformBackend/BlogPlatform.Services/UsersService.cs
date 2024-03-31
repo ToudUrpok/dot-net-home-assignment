@@ -1,6 +1,7 @@
 ﻿using BlogPlatform.Data;
 using BlogPlatform.Data.Entities;
 using BlogPlatform.Dtos;
+using BlogPlatform.Services.Exceptions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,12 +11,12 @@ public class UsersService(BlogContext dbContext) : IUsersService
 {
     private readonly BlogContext _dbContext = dbContext;
 
-    public async Task<UserDto?> GetUserAsync(int id)
+    public async Task<UserDto> GetUserAsync(int id)
     {
         var userEntry = await _dbContext.AppUsers
-            .AsNoTracking()
-            .SingleOrDefaultAsync(u => u.Id == id);
-        if (userEntry is null) return null;
+        .AsNoTracking()
+        .SingleOrDefaultAsync(u => u.Id == id) ??
+            throw new EntityNotFoundException($"The user with id={id} is not found.");
 
         return new UserDto()
         {
@@ -25,12 +26,12 @@ public class UsersService(BlogContext dbContext) : IUsersService
         };
     }
 
-    public async Task<UserDto?> GetUserByEmailAsync(string email)
+    public async Task<UserDto> GetUserByEmailAsync(string email)
     {
         var userEntry = await _dbContext.AppUsers
-            .AsNoTracking()
-            .SingleOrDefaultAsync(u => u.Email == email);
-        if (userEntry is null) return null;
+        .AsNoTracking()
+        .SingleOrDefaultAsync(u => u.Email == email) ??
+            throw new EntityNotFoundException($"The user with email={email} is not found.");
 
         return new UserDto()
         {
@@ -40,10 +41,10 @@ public class UsersService(BlogContext dbContext) : IUsersService
         };
     }
 
-    public async Task<UserDto?> CreateUserAsync(CreateUserDto data)
+    public async Task<UserDto> CreateUserAsync(CreateUserDto data)
     {
         bool isEmailAlreadyUsed = await _dbContext.AppUsers.AnyAsync(u => u.Email == data.Email);
-        if (isEmailAlreadyUsed) return null;
+        if (isEmailAlreadyUsed) throw new EntityAlreadyExistsException($"Failed to create the user. The user with email={data.Email} is already exist.");
 
         AppUser userToAdd = new()
         {
@@ -66,10 +67,10 @@ public class UsersService(BlogContext dbContext) : IUsersService
         };
     }
 
-    public async Task<bool> UpdateUserAsync(UpdateUserDto user)
+    public async Task<UserDto> UpdateUserAsync(UpdateUserDto user)
     {
-        var userEntry = await _dbContext.AppUsers.SingleOrDefaultAsync(u => u.Id == user.Id);
-        if (userEntry is null) return false;
+        var userEntry = await _dbContext.AppUsers.SingleOrDefaultAsync(u => u.Id == user.Id) ??
+            throw new EntityNotFoundException($"Failed to update the user with id={user.Id} because such user doesn't exist.");
 
         if (userEntry.UserName != user.UserName)
         {
@@ -77,6 +78,11 @@ public class UsersService(BlogContext dbContext) : IUsersService
         }
         await _dbContext.SaveChangesAsync();
 
-        return true;
+        return new UserDto()
+        {
+            Id = userEntry.Id,
+            UserName = userEntry.UserName,
+            Email = userEntry.Email
+        };
     }
 }

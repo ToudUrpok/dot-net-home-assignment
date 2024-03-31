@@ -1,5 +1,6 @@
 ﻿using Moq;
 using BlogPlatform.Services;
+using BlogPlatform.Services.Exceptions;
 using BlogPlatform.Dtos;
 using BlogPlatform.WebApi.Controllers;
 using Microsoft.Extensions.Logging;
@@ -12,15 +13,16 @@ public class UnitTestAuthorizationController
     private readonly Mock<ILoginService> _loginService = new();
     private readonly Mock<ILogger<AuthorizationController>> _logger = new();
 
+    private static readonly LoginDto TEST_LOGIN_DTO = new() { Email = "test@email.com", Password = "123456" };
+
     [Fact]
     public async void LoginOk()
     {
-        LoginDto testData = new() { Email = "test@email.com", Password = "123456" };
         string testToken = "test_token_123456";
-        _loginService.Setup(ls => ls.Login(testData)).ReturnsAsync(testToken);
+        _loginService.Setup(ls => ls.Login(TEST_LOGIN_DTO)).ReturnsAsync(testToken);
         var authorizationController = new AuthorizationController(_logger.Object, _loginService.Object);
 
-        var actionResult = await authorizationController.Login(testData);
+        var actionResult = await authorizationController.Login(TEST_LOGIN_DTO);
 
         Assert.NotNull(actionResult.Result);
         var okResult = Assert.IsAssignableFrom<OkObjectResult>(actionResult.Result);
@@ -31,17 +33,38 @@ public class UnitTestAuthorizationController
     }
 
     [Fact]
-    public async void LoginBadRequest()
+    public async void LoginEntityNotFoundException()
     {
-        LoginDto testData = new() { Email = "test", Password = "123" };
-        string? testToken = null;
-        _loginService.Setup(ls => ls.Login(testData)).ReturnsAsync(testToken);
+        string errorMessage = $"The user with email={TEST_LOGIN_DTO.Email} is not found.";
+        _loginService.Setup(ls => ls.Login(TEST_LOGIN_DTO)).ThrowsAsync(new EntityNotFoundException(errorMessage));
         var authorizationController = new AuthorizationController(_logger.Object, _loginService.Object);
 
-        var actionResult = await authorizationController.Login(testData);
+        try
+        {
+            await authorizationController.Login(TEST_LOGIN_DTO);
+        }
+        catch (EntityNotFoundException ex)
+        {
+            var entityNotFoundException = Assert.IsAssignableFrom<EntityNotFoundException>(ex);
+            Assert.True(entityNotFoundException.Message == errorMessage);
+        }
+    }
 
-        Assert.NotNull(actionResult.Result);
-        var badRequestResult = Assert.IsAssignableFrom<BadRequestResult>(actionResult.Result);
-        Assert.True(badRequestResult.StatusCode == 400);
+    [Fact]
+    public async void LoginUserLoginException()
+    {
+        string errorMessage = "Invalid password.";
+        _loginService.Setup(ls => ls.Login(TEST_LOGIN_DTO)).ThrowsAsync(new UserLoginException(errorMessage));
+        var authorizationController = new AuthorizationController(_logger.Object, _loginService.Object);
+
+        try
+        {
+            await authorizationController.Login(TEST_LOGIN_DTO);
+        }
+        catch (UserLoginException ex)
+        {
+            var userLoginException = Assert.IsAssignableFrom<UserLoginException>(ex);
+            Assert.True(userLoginException.Message == errorMessage);
+        }
     }
 }
