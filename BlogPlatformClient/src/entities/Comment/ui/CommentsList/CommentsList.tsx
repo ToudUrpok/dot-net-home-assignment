@@ -27,7 +27,7 @@ export const CommentsList = memo((props: CommentsListProps) => {
                             comment={c}
                         />
                     ))
-                    : <p>There are no comments to the post.</p>
+                    : <p className={cls.EmptyMessage}>There are no comments to the post.</p>
                 }
             </div>
         </div>
