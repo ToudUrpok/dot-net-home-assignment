@@ -75,12 +75,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
-
 app.UseMiddleware<LoggingMiddleware>();
 
-app.UseAuthentication();
-app.UseAuthorization();
+app.UseHttpsRedirection();
 
 app.UseCors((builder) => {
     builder.AllowAnyOrigin();
@@ -89,5 +86,8 @@ app.UseCors((builder) => {
 });
 
 app.MapControllers();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.Run();
