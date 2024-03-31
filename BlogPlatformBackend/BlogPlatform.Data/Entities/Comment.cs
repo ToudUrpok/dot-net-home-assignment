@@ -10,6 +10,5 @@ public class Comment
     public required string Text { get; set; }
     public long PostId { get; set; }
 
-    [Required]
     public Post? Post { get; set; }
 }
