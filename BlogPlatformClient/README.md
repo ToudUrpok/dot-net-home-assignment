@@ -71,6 +71,7 @@ Backend:
 
 - Run:
  - open terminal in BlogPlatformClient folder
+ - install dependencies by running command 'npm install'
  - run 'npm run dev' command
  - Follow link http://localhost:5173/
 
