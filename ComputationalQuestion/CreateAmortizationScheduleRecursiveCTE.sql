@@ -95,9 +95,23 @@ AS
 					cte_amortization_schedule_recycled
 				WHERE payment_number < @recycled_loan_term + @recycle_month
 			)
-	SELECT * FROM cte_amortization_schedule
-	UNION
-	SELECT * FROM cte_amortization_schedule_recycled
+	SELECT
+		payment_number AS [Payment Number],
+		CONVERT(DECIMAL(19,2), beginning_balance) AS [Beginning Balance],
+		CONVERT(DECIMAL(19,2), monthly_pay) AS [Monthly Pay],
+		CONVERT(DECIMAL(19,2), interest) AS [Interest],
+		CONVERT(DECIMAL(19,2), principal) AS [Principal],
+		CONVERT(DECIMAL(19,2), ending_balance) AS [Ending Balance]
+	FROM cte_amortization_schedule
+	UNION ALL
+	SELECT
+		payment_number AS [Payment Number],
+		CONVERT(DECIMAL(19,2), beginning_balance) AS [Beginning Balance],
+		CONVERT(DECIMAL(19,2), monthly_pay) AS [Monthly Pay],
+		CONVERT(DECIMAL(19,2), interest) AS [Interest],
+		CONVERT(DECIMAL(19,2), principal) AS [Principal],
+		CONVERT(DECIMAL(19,2), ending_balance) AS [Ending Balance]
+	FROM cte_amortization_schedule_recycled
 
 GO
 
@@ -111,24 +125,4 @@ DECLARE
 	@recycled_loan_term INT = 48,
 	@recycled_interest_rate FLOAT = .045
 
-DECLARE @result TABLE
-(
-	payment_number INT,
-	monthly_interest FLOAT,
-	beginning_balance FLOAT,
-	monthly_pay FLOAT,
-	interest FLOAT,
-	principal FLOAT,
-	ending_balance FLOAT
-)
-INSERT @result EXECUTE create_loan_amortization_schedule_with_recycle @loan_amount, @loan_term, @interest_rate, @recycle_month, @recycled_loan_term, @recycled_interest_rate
-
--- select the result
-SELECT 
-	payment_number AS [Payment Number],
-	CONVERT(DECIMAL(19,2), beginning_balance) AS [Beginning Balance],
-	CONVERT(DECIMAL(19,2), monthly_pay) AS [Monthly Pay],
-	CONVERT(DECIMAL(19,2), interest) AS [Interest],
-	CONVERT(DECIMAL(19,2), principal) AS [Principal],
-	CONVERT(DECIMAL(19,2), ending_balance) AS [Ending Balance]
-FROM @result
+EXECUTE create_loan_amortization_schedule_with_recycle @loan_amount, @loan_term, @interest_rate, @recycle_month, @recycled_loan_term, @recycled_interest_rate
