@@ -1,7 +1,6 @@
-import { MutableRefObject, ReactNode, useRef } from 'react'
+import { ReactNode } from 'react'
 import { cn } from '../../../shared/lib/classNames/classNames'
 import styles from './Page.module.scss'
-import { useIntersectionObserver } from '../../../shared/hooks/useIntersectionObserver'
 
 interface PageProps {
     className?: string
@@ -12,26 +11,12 @@ interface PageProps {
 export const Page = (props: PageProps) => {
     const {
         className,
-        children,
-        onScrollEnd
+        children
     } = props
 
-    const pageRef = useRef() as MutableRefObject<HTMLDivElement>
-    const endOfPageRef = useRef() as MutableRefObject<HTMLDivElement>
-
-    useIntersectionObserver({
-        rootRef: pageRef,
-        targetRef: endOfPageRef,
-        callback: onScrollEnd
-    })
-
     return (
-        <section
-            className={cn(styles.Page, {}, [className])}
-            ref={pageRef}
-        >
+        <section className={cn(styles.Page, {}, [className])} >
             {children}
-            {onScrollEnd ? <div ref={endOfPageRef}/> : null}
         </section>
     )
 }

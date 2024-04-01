@@ -10,9 +10,8 @@ import {
 import { CreatePostFormFields } from '../../model/types/createPostFormFields'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { postPost } from '../../model/api/postPost'
-import { useAppSelector } from '../../../../shared/hooks/useAppSelector'
-import { selectUserAuthToken } from '../../../User'
 import { Input } from '../../../../shared/ui/Input/Input'
+import { useLogin } from '../../../../feature/Authorization'
 
 export interface CreatePostFormProps {
     className?: string
@@ -21,7 +20,7 @@ export interface CreatePostFormProps {
 }
 
 export const CreatePostForm = memo(({ className, onSuccess, onFailed }: CreatePostFormProps) => {
-    const authToken = useAppSelector(selectUserAuthToken)
+    const { data: authToken } = useLogin()
 
     const queryClient = useQueryClient()
     const mutation = useMutation({

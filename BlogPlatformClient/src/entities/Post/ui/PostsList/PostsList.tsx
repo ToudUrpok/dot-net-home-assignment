@@ -4,11 +4,10 @@ import { Loader } from '../../../../shared/ui/Loader/Loader'
 import { PostCard } from '../PostCard/PostCard'
 import styles from './PostsList.module.scss'
 import { memo } from 'react'
-import { useAppSelector } from '../../../../shared/hooks/useAppSelector'
-import { selectUserAuthToken } from '../../../User'
 import { Button } from '../../../../shared/ui/Button/Button'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { deletePost } from '../../model/api/deletePost'
+import { useLogin } from '../../../../feature/Authorization'
 
 interface PostsListProps {
     className?: string
@@ -27,7 +26,7 @@ export const PostsList = memo(({ className }: PostsListProps) => {
         }
     })
 
-    const authToken = useAppSelector(selectUserAuthToken)
+    const { data: authToken } = useLogin()
 
     const handleDeleteBtnClick = (postId: number) => () => {
         if (authToken) {

@@ -10,6 +10,7 @@ const BlogPage = () => {
     return (
         <Page className={styles.BlogPage}>
             <AppLink
+                className={styles.AddPost}
                 theme={'contrast'}
                 to={RoutePaths.createPost}
             >

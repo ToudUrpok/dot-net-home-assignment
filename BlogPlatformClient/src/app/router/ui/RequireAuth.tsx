@@ -4,18 +4,17 @@ import {
     Navigate,
     useLocation
 } from 'react-router-dom'
-import { selectUserAuthToken } from '../../../entities/User'
-import { useAppSelector } from '../../../shared/hooks/useAppSelector'
+import { useLogin } from '../../../feature/Authorization'
 
 interface RequireAuthProps {
     children?: ReactNode
 }
 
 export const RequireAuth = ({ children }: RequireAuthProps) => {
-    const auth = useAppSelector(selectUserAuthToken)
+    const { data } = useLogin()
     const location = useLocation()
 
-    if (!auth) {
+    if (!data) {
         return <Navigate to={RoutePaths.login} state={{ from: location }} replace />
     }
 

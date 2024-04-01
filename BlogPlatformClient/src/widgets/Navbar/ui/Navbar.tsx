@@ -2,29 +2,34 @@ import styles from './Navbar.module.scss'
 import { cn } from '../../../shared/lib/classNames/classNames'
 import { memo, useCallback } from 'react'
 import { Button } from '../../../shared/ui/Button/Button'
-import { selectUserAuthToken, userActions } from '../../../entities/User'
 import { RoutePaths } from '../../../shared/config/routeConfig/routeConfig'
 import { AppLink } from '../../../shared/ui/AppLink/AppLink'
-import { useAppSelector } from '../../../shared/hooks/useAppSelector'
-import { useAppDispatch } from '../../../shared/hooks/useAppDispatch'
+import { logout, useLogin } from '../../../feature/Authorization'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 interface NavbarProps {
     className?: string
 }
 
 export const Navbar = memo(({ className }: NavbarProps) => {
-    const dispatch = useAppDispatch()
-    const auth = useAppSelector(selectUserAuthToken)
+    const { data } = useLogin()
+    const queryClient = useQueryClient()
+    const mutation = useMutation({
+        mutationFn: logout,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['login'] })
+        }
+    })
 
     const logOut = useCallback(() => {
-        dispatch(userActions.logOut())
-    }, [dispatch])
+        mutation.mutate()
+    }, [])
 
     return (
         <header className={cn(styles.Navbar, {}, [className])}>
             <div className={styles.Links}>
                 <div className={styles.Link}>
-                    {auth ? (
+                    {data ? (
                         <Button
                             theme={'backgroundInverted'}
                             size={'l'}

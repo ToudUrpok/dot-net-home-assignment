@@ -9,14 +9,8 @@ import {
     Controller 
 } from 'react-hook-form'
 import { LoginFormFields } from '../../model/types/loginFormFields'
-import { useAppDispatch } from '../../../../shared/hooks/useAppDispatch'
-import { useAppSelector } from '../../../../shared/hooks/useAppSelector'
-import { 
-    fetchUser,
-    loginUser, 
-    selectUserError, 
-    selectUserIsLoading 
-} from '../../../../entities/User'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { postLogin } from '../../model/api/postLogin'
 
 export interface LoginFormProps {
     className?: string
@@ -25,10 +19,22 @@ export interface LoginFormProps {
 }
 
 const LoginForm = ({ className, onSuccess, onFailed }: LoginFormProps) => {
-    const dispatch = useAppDispatch()
-    const loginError = useAppSelector(selectUserError)
-    const isLoading = useAppSelector(selectUserIsLoading)
-    const [ error, setError ] = useState<boolean>(false)
+    const queryClient = useQueryClient()
+    const mutation = useMutation({
+        mutationFn: postLogin,
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['login'] })
+            setLoginError(undefined)
+            onSuccess()
+        },
+        onError: (error: Error) => {
+            setLoginError(error.message)
+            onFailed?.(loginError)
+        }
+    })
+
+    const [ loginError, setLoginError ] = useState<string | undefined>(undefined)
+
     const {
         control,
         handleSubmit,
@@ -39,17 +45,7 @@ const LoginForm = ({ className, onSuccess, onFailed }: LoginFormProps) => {
 
     const onSubmit: SubmitHandler<LoginFormFields> = async (data) => {
         if (data.email && data.password){
-            const loginResult = await dispatch(loginUser({ 
-                email: data.email,
-                password: data.password
-            }))
-            if (loginResult.meta.requestStatus === 'fulfilled') {
-                await dispatch(fetchUser())
-                onSuccess()
-            } else {
-                onFailed?.(loginError)
-                setError(true)
-            }
+            mutation.mutate(data)
         }
     }
 
@@ -59,7 +55,7 @@ const LoginForm = ({ className, onSuccess, onFailed }: LoginFormProps) => {
             onSubmit={handleSubmit(onSubmit)}
         >
             <div className={styles.LoginErrorWrapper}>
-                { error && (
+                { loginError && (
                     <p className={styles.LoginError}>
                         {loginError}
                     </p>
@@ -127,7 +123,7 @@ const LoginForm = ({ className, onSuccess, onFailed }: LoginFormProps) => {
                 theme={'background'}
                 size='l'
                 type='submit'
-                disabled={!isDirty || isLoading}
+                disabled={!isDirty}
             >
                 Log In
             </Button>
