@@ -50,12 +50,12 @@ Backend:
     - style: contains global styles files
     - App control
   - pages
-    public:
-      - BlogPage - main page with Posts list
-      - PostPage - page with Post detailed view (including Post comments and add comment form). Accessible by selecting Post to read on BlogPage. Add Comment form available only for authorized user.
-      - LoginPage
-    private:
-      - CreatePostPage
+      - public:
+        - BlogPage - main page with Posts list (post deletion available only for authorized user)
+        - PostPage - page with Post detailed view (including Post comments and add comment form). Accessible by selecting Post to read on BlogPage. Add Comment form available only for authorized user.
+        - LoginPage
+      - private (auth required):
+        - CreatePostPage
     - NotFoundPage - reroutes to this page if route is not found
   - widgets
     - Navbar - contains login/logout ui
@@ -63,7 +63,7 @@ Backend:
     - Page - root for Pages controls
     - PageLoader - is shown while pages loading
   - features
-      Authorization
+      - Authorization:
         - contains LoginForm
         - authorization api/queries
   - entities
