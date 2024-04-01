@@ -5,3 +5,7 @@ export type {
 export {
     CommentsList
 } from './ui/CommentsList/CommentsList'
+
+export {
+    AddCommentForm
+} from './ui/AddCommentForm/AddCommentForm'
