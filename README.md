@@ -25,12 +25,13 @@ Backend:
       - after successful authorization and receiving the token copy it -> click Authorize button in right top corner of the page -> paste your token to the Value field -> click Authorize
       - after authorization all endpoints will be available for testing
 
-    Endpoints which don't require authorization:
+      Endpoints which don't require authorization:
       - POST /Authorization
       - GET /Commnet/{id}
       - GET /Post
       - GET /Post/{id}
       - POST /User
+
   3. Use VS Test Exporer for running unit test.
 
  Frontend:
