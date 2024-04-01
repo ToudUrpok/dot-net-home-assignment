@@ -67,11 +67,15 @@ export const PostsList = memo(({ className }: PostsListProps) => {
                         post={post}
                     />
                     {authToken && (
-                        <Button
-                            onClick={handleDeleteBtnClick(post.id)}
-                        >
-                            Delete
-                        </Button>
+                        <div className={styles.DeleteBtnWrapper}>
+                            <Button
+                                onClick={handleDeleteBtnClick(post.id)}
+                                theme={'delete'}
+                            >
+                                Delete
+                            </Button>
+                        </div>
+                        
                     )}
                 </div>
             ))}

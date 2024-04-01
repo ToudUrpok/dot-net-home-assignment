@@ -41,6 +41,12 @@
     border: none;
 }
 
+.delete {
+    border: 1px solid red;
+    color: red;
+    background: none;
+}
+
 .m {
     font: var(--font-m);
 }
