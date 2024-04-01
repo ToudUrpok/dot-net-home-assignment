@@ -14,7 +14,9 @@ Backend:
   - BlogPlatform.Test - test project which uses xUnit and Moq for testing Post, Comment and Authorization controllers.
 
 - Run:
-  - before running the WebApi project please apply db migrations in Package Manager Console by command: Update-Database
+  - before running the WebApi project apply db migrations from:
+      - VS Package Manager Console by command (choose BlogPlatform.WebApi): Update-Database
+      - terminal via .Net Core CLI command 'dotnet ef database update'
   - then run BlogPlatform.WebApi in debug mode
 
 - Test (with Swagger):
@@ -22,6 +24,7 @@ Backend:
   2. for authorization use POST /Authorization endpoint with email & password of added user
       - after successful authorization and receiving the token copy it -> click Authorize button in right top corner of the page -> paste your token to the Value field -> click Authorize
       - after authorization all endpoints will be available for testing
+
     Endpoints which don't require authorization:
       - POST /Authorization
       - GET /Commnet/{id}
