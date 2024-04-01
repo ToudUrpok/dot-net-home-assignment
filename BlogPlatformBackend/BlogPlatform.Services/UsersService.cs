@@ -26,21 +26,6 @@ public class UsersService(BlogContext dbContext) : IUsersService
         };
     }
 
-    public async Task<UserDto> GetUserByEmailAsync(string email)
-    {
-        var userEntry = await _dbContext.AppUsers
-        .AsNoTracking()
-        .SingleOrDefaultAsync(u => u.Email == email) ??
-            throw new EntityNotFoundException($"The user with email={email} is not found.");
-
-        return new UserDto()
-        {
-            Id = userEntry.Id,
-            UserName = userEntry.UserName,
-            Email = userEntry.Email
-        };
-    }
-
     public async Task<UserDto> CreateUserAsync(CreateUserDto data)
     {
         bool isEmailAlreadyUsed = await _dbContext.AppUsers.AnyAsync(u => u.Email == data.Email);
